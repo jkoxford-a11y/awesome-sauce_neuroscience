@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrochemical Gradient Explorer ENHANCED | Prediction-Based Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .enhancement-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+            box-shadow: 0 2px 8px rgba(72, 187, 120, 0.3);
+        }
+
+        /* ========== PREDICTION CHALLENGE STYLES ========== */
+        .prediction-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 35px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .challenge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .challenge-header h2 {
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .challenge-number {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .challenge-question {
+            background: white;
+            color: #2d3748;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .challenge-question strong {
+            color: #667eea;
+            font-size: 1.15em;
+        }
+
+        .challenge-context {
+            color: #718096;
+            font-size: 0.95em;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .prediction-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .prediction-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            text-align: left;
+            position: relative;
+        }
+
+        .prediction-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .prediction-option.selected {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+            border-width: 3px;
+        }
+
+        .prediction-option.correct {
+            background: #48bb78;
+            border-color: #2f855a;
+            animation: correctPulse 0.6s ease;
+        }
+
+        .prediction-option.incorrect {
+            background: #f56565;
+            border-color: #c53030;
+            animation: incorrectShake 0.5s ease;
+        }
+
+        .option-letter {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-right: 12px;
+        }
+
+        .option-content {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .prediction-feedback {
+            background: white;
+            color: #2d3748;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .prediction-feedback.visible {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-correct {
+            border-left: 5px solid #48bb78;
+        }
+
+        .feedback-incorrect {
+            border-left: 5px solid #f56565;
+        }
+
+        .feedback-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feedback-explanation {
+            margin-top: 15px;
+            padding: 18px;
+            background: #f7fafc;
+            border-radius: 8px;
+            line-height: 1.7;
+            font-size: 1.05em;
+        }
+
+        .misconception-alert {
+            background: #fff5f0;
+            border-left: 4px solid #f56565;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+
+        .misconception-alert strong {
+            color: #c53030;
+        }
+
+        .followup-question {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        .followup-question summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #2c5282;
+            padding: 5px;
+        }
+
+        .followup-question summary:hover {
+            color: #2b6cb0;
+        }
+
+        .followup-answer {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #cbd5e0;
+            line-height: 1.6;
+        }
+
+        .feedback-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: #ebf8ff;
+            border-radius: 8px;
+        }
+
+        .feedback-stat {
+            text-align: center;
+        }
+
+        .feedback-stat-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #3182ce;
+        }
+
+        .feedback-stat-label {
+            color: #718096;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .challenge-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #f7fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .completion-message {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .completion-message h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .completion-message p {
+            font-size: 1.1em;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        /* ========== SIMULATOR LOCK OVERLAY ========== */
+        .simulator-container {
+            position: relative;
+        }
+
+        .simulator-container.locked::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            border-radius: 12px;
+        }
+
+        .unlock-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #667eea;
+            color: white;
+            padding: 30px 50px;
+            border-radius: 12px;
+            font-size: 1.3em;
+            font-weight: 600;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            z-index: 101;
+            text-align: center;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .simulator-container.locked .unlock-message {
+            display: block;
+        }
+
+        .simulator-content {
+            transition: filter 0.3s;
+        }
+
+        .simulator-container.locked .simulator-content {
+            filter: blur(2px);
+            pointer-events: none;
+        }
+
+        /* ========== ORIGINAL GRADIENT EXPLORER STYLES ========== */
+        .learning-objectives {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .learning-objectives h2 {
+            color: #2c5282;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .learning-objectives ul {
+            list-style-position: inside;
+            color: #2d3748;
+            line-height: 1.8;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .ion-section {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 12px;
+            border: 3px solid #e2e8f0;
+        }
+
+        .na-section {
+            border-color: #fc8181;
+        }
+
+        .k-section {
+            border-color: #90cdf4;
+        }
+
+        .ion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #e2e8f0;
+        }
+
+        .na-section .ion-header {
+            border-bottom-color: #fc8181;
+        }
+
+        .k-section .ion-header {
+            border-bottom-color: #90cdf4;
+        }
+
+        .ion-title {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .na-title {
+            color: #e53e3e;
+        }
+
+        .k-title {
+            color: #3182ce;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            display: block;
+            font-size: 1.1em;
+        }
+
+        .slider-container {
+            margin-bottom: 15px;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .slider-label {
+            min-width: 120px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .concentration-slider {
+            flex: 1;
+            height: 10px;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .concentration-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .concentration-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .na-slider {
+            background: linear-gradient(to right, #fff5f5, #fc8181);
+        }
+
+        .k-slider {
+            background: linear-gradient(to right, #ebf8ff, #90cdf4);
+        }
+
+        .value-display {
+            min-width: 80px;
+            text-align: right;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #2d3748;
+        }
+
+        .voltage-control {
+            background: #fffaf0;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #ed8936;
+        }
+
+        .voltage-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2d3748;
+            text-align: center;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .voltage-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, #fc8181, #fbd38d, #68d391);
+        }
+
+        .voltage-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .voltage-slider::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .quick-presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s;
+        }
+
+        .preset-btn:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+            transform: translateY(-2px);
+        }
+
+        .visualization-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 30px;
+        }
+
+        .gradient-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .gradient-card {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .gradient-header {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .force-diagram {
+            position: relative;
+            height: 200px;
+            background: linear-gradient(to right, #fff5f5, #ebf8ff);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .membrane-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #2d3748;
+            transform: translateX(-50%);
+        }
+
+        .membrane-label {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #2d3748;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        .force-arrow {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+
+        .arrow-shaft {
+            height: 8px;
+            background: currentColor;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .arrow-head {
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .force-arrow.arrow-right .arrow-head {
+            border-width: 12px 0 12px 16px;
+            border-color: transparent transparent transparent currentColor;
+        }
+
+        .force-arrow.arrow-left .arrow-head {
+            border-width: 12px 16px 12px 0;
+            border-color: transparent currentColor transparent transparent;
+        }
+
+        .electrical-gradient {
+            color: #3182ce;
+        }
+
+        .concentration-gradient {
+            color: #e53e3e;
+        }
+
+        .force-label {
+            position: absolute;
+            font-size: 0.9em;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: white;
+            z-index: 5;
+        }
+
+        .net-force-summary {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .net-force-value {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .net-force-value.inward {
+            color: #48bb78;
+        }
+
+        .net-force-value.outward {
+            color: #ed8936;
+        }
+
+        .net-force-value.balanced {
+            color: #718096;
+        }
+
+        .net-force-direction {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .side-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .explanation-panel {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+
+        .explanation-panel h3 {
+            color: #7c2d12;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .explanation-panel p {
+            color: #2d3748;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .key-insight {
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .key-insight h4 {
+            color: #234e52;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .gradient-display {
+                grid-template-columns: 1fr;
+            }
+
+            .prediction-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Saltatory Conduction <span class="enhancement-badge">🧠 ENHANCED</span></h1>
+        <p class="subtitle">Evidence-Based Learning with Prediction-Confrontation</p>
+
+        <!-- ========== PREDICTION CHALLENGE SYSTEM ========== -->
+        <div id="predictionChallenge" class="prediction-container">
+            <div class="challenge-header">
+                <h2>🧠 Prediction Challenge</h2>
+                <div class="challenge-number">Challenge <span id="currentChallenge">1</span> of 4</div>
+            </div>
+            
+            <div class="challenge-question">
+                <div id="challengeText"></div>
+                <div class="challenge-context" id="challengeContext"></div>
+            </div>
+            
+            <div class="prediction-options" id="predictionOptions">
+                <!-- Dynamically populated -->
+            </div>
+            
+            <div class="prediction-feedback" id="predictionFeedback">
+                <!-- Shows after answer selected -->
+            </div>
+            
+            <div class="challenge-actions">
+                <button id="submitPrediction" class="btn-primary" disabled>Submit Prediction</button>
+                <button id="nextChallenge" class="btn-primary" style="display: none;">Next Challenge →</button>
+            </div>
+        </div>
+
+        <!-- ========== MAIN SIMULATOR (Initially Locked) ========== -->
+        <div id="simulatorContainer" class="simulator-container locked">
+            <div class="unlock-message">
+                🔒 Complete the 4 prediction challenges<br>to unlock the full simulator
+            </div>
+
+            <div class="simulator-content">
+                <div style="text-align: center; padding: 80px 40px;">
+                    <div style="font-size: 5em; margin-bottom: 20px;">🎉</div>
+                    <h2 style="color: #2d3748; font-size: 2.5em; margin-bottom: 25px; font-weight: 700;">Challenges Complete!</h2>
+                    <p style="color: #4a5568; font-size: 1.3em; line-height: 1.8; margin-bottom: 35px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        Excellent work! You've completed all 4 prediction challenges for Saltatory Conduction.<br><br>
+                        Ready to validate your predictions with hands-on exploration?
+                    </p>
+                    <a href="saltatory_conduction.html" style="display: inline-block; padding: 18px 45px; background: linear-gradient(135deg, #30cfd0, #330867); color: white; text-decoration: none; border-radius: 12px; font-size: 1.3em; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,0.2); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.2)'">
+                        🚀 Launch Saltatory Conduction Racer
+                    </a>
+                    <p style="color: #718096; font-size: 0.95em; margin-top: 30px;">
+                        The simulator will open in this window
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
