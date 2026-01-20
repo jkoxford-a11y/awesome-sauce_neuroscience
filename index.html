@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action Potential Learning Suite | Neuroscience Education</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.5);
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.95;
+            margin-bottom: 10px;
+        }
+
+        .author {
+            font-size: 1em;
+            margin-top: 20px;
+            color: #cbd5e0;
+            font-style: italic;
+        }
+
+        .content {
+            padding: 50px 40px;
+        }
+
+        .intro {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 5px solid #0369a1;
+            margin-bottom: 50px;
+        }
+
+        .intro h2 {
+            color: #0c4a6e;
+            margin-bottom: 15px;
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+
+        .intro p {
+            color: #334155;
+            line-height: 1.7;
+            font-size: 1.05em;
+        }
+
+        .workflow-note {
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 2px solid #0369a1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 600;
+            color: #0c4a6e;
+        }
+
+        .workflow-note::before {
+            content: "→";
+            font-size: 1.8em;
+            color: #0369a1;
+        }
+
+        .topic-section {
+            margin-bottom: 50px;
+        }
+
+        .topic-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .topic-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #334155;
+            color: white;
+            line-height: 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .topic-title {
+            font-size: 2em;
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .topic-description {
+            color: #64748b;
+            font-size: 1.1em;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            position: relative;
+        }
+
+        .cards-container::before {
+            content: "→";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            color: #cbd5e0;
+            font-weight: bold;
+            z-index: 1;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 35px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            border-color: #cbd5e0;
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Topic-specific gradient colors */
+        .topic-section.gradients .card::before {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .topic-section.threshold .card::before {
+            background: linear-gradient(90deg, #f093fb, #f5576c);
+        }
+
+        .topic-section.channels .card::before {
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+        }
+
+        .topic-section.refractory .card::before {
+            background: linear-gradient(90deg, #fa709a, #fee140);
+        }
+
+        .topic-section.saltatory .card::before {
+            background: linear-gradient(90deg, #30cfd0, #330867);
+        }
+
+        .card-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .card-label {
+            font-size: 0.9em;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .card-count {
+            display: inline-block;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .card-description {
+            color: #475569;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            font-size: 1em;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .card-features li {
+            color: #64748b;
+            padding-left: 25px;
+            position: relative;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .card-features li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #94a3b8;
+            font-size: 1.5em;
+            line-height: 1;
+        }
+
+        .card-button {
+            display: block;
+            width: 100%;
+            padding: 14px 24px;
+            background: #1e293b;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.05em;
+            text-align: center;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .card-button:hover {
+            background: #334155;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Topic-specific button colors */
+        .topic-section.gradients .card-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .topic-section.gradients .card-button:hover {
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .topic-section.threshold .card-button {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .topic-section.threshold .card-button:hover {
+            box-shadow: 0 8px 20px rgba(240, 147, 251, 0.4);
+        }
+
+        .topic-section.channels .card-button {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .topic-section.channels .card-button:hover {
+            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        .topic-section.refractory .card-button {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+        }
+
+        .topic-section.refractory .card-button:hover {
+            box-shadow: 0 8px 20px rgba(250, 112, 154, 0.4);
+        }
+
+        .topic-section.saltatory .card-button {
+            background: linear-gradient(135deg, #30cfd0, #330867);
+        }
+
+        .topic-section.saltatory .card-button:hover {
+            box-shadow: 0 8px 20px rgba(48, 207, 208, 0.4);
+        }
+
+        footer {
+            background: linear-gradient(135deg, #1a202c, #2d3748);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        footer p {
+            margin: 10px 0;
+        }
+
+        @media (max-width: 900px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-container::before {
+                content: "↓";
+                top: auto;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .card:first-child {
+                margin-bottom: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Action Potential Learning Suite</h1>
+            <p class="subtitle">Evidence-Based Neuroscience Education</p>
+            <p class="author">Created by Herr Prof. Dr. Awesome-Sauce (The Unicorn Prof)</p>
+        </header>
+
+        <div class="content">
+            <div class="intro">
+                <h2>Pedagogical Framework</h2>
+                <p>
+                    This suite integrates prediction-confrontation pedagogy with interactive simulation. Each topic contains paired learning activities: prediction challenges activate prior knowledge and confront misconceptions, while interactive simulators provide hands-on exploration and validation of predictions.
+                </p>
+                <div class="workflow-note">
+                    Recommended sequence: Complete prediction challenges before simulator exploration
+                </div>
+            </div>
+
+            <!-- TOPIC 1: GRADIENTS -->
+            <div class="topic-section gradients">
+                <div class="topic-header">
+                    <div class="topic-number">1</div>
+                    <h2 class="topic-title">Electrochemical Gradients</h2>
+                    <p class="topic-description">Understanding forces that drive ion movement across membranes</p>
+                </div>
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-icon">🧠</div>
+                        <div class="card-label">Prediction Challenges</div>
+                        <h3 class="card-title">Test Your Understanding</h3>
+                        <div class="card-count">5 Challenges</div>
+                        <p class="card-description">
+                            Predict the direction and magnitude of electrical and concentration gradients on Na⁺ and K⁺ ions.
+                        </p>
+                        <ul class="card-features">
+                            <li>Immediate elaborated feedback</li>
+                            <li>Common misconception alerts</li>
+                            <li>Research-backed questions</li>
+                        </ul>
+                        <a href="gradient_explorer_enhanced.html" class="card-button">Start Challenges</a>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">🚀</div>
+                        <div class="card-label">Interactive Simulator</div>
+                        <h3 class="card-title">Hands-On Exploration</h3>
+                        <div class="card-count">Interactive</div>
+                        <p class="card-description">
+                            Manipulate ion concentrations and membrane potential to visualize electrochemical forces in real-time.
+                        </p>
+                        <ul class="card-features">
+                            <li>Adjustable concentration gradients</li>
+                            <li>Voltage manipulation controls</li>
+                            <li>Visual force diagrams</li>
+                        </ul>
+                        <a href="gradient_explorer.html" class="card-button">Launch Simulator</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOPIC 2: THRESHOLD -->
+            <div class="topic-section threshold">
+                <div class="topic-header">
+                    <div class="topic-number">2</div>
+                    <h2 class="topic-title">Threshold and All-or-None Law</h2>
+                    <p class="topic-description">Examining the binary nature of action potential generation</p>
+                </div>
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-icon">🧠</div>
+                        <div class="card-label">Prediction Challenges</div>
+                        <h3 class="card-title">Test Your Understanding</h3>
+                        <div class="card-count">4 Challenges</div>
+                        <p class="card-description">
+                            Address the common misconception that action potential amplitude scales with stimulus strength.
+                        </p>
+                        <ul class="card-features">
+                            <li>All-or-none principle focus</li>
+                            <li>Frequency coding concepts</li>
+                            <li>Graded vs regenerative signals</li>
+                        </ul>
+                        <a href="challenges_threshold.html" class="card-button">Start Challenges</a>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">🚀</div>
+                        <div class="card-label">Interactive Simulator</div>
+                        <h3 class="card-title">Hands-On Exploration</h3>
+                        <div class="card-count">Interactive</div>
+                        <p class="card-description">
+                            Inject varying currents and observe the difference between subthreshold and suprathreshold responses.
+                        </p>
+                        <ul class="card-features">
+                            <li>Adjustable current injection</li>
+                            <li>Threshold visualization</li>
+                            <li>Graded potential comparison</li>
+                        </ul>
+                        <a href="threshold_all_or_none.html" class="card-button">Launch Simulator</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOPIC 3: CHANNELS -->
+            <div class="topic-section channels">
+                <div class="topic-header">
+                    <div class="topic-number">3</div>
+                    <h2 class="topic-title">Voltage-Gated Ion Channels</h2>
+                    <p class="topic-description">Understanding three-state channel conformations and kinetics</p>
+                </div>
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-icon">🧠</div>
+                        <div class="card-label">Prediction Challenges</div>
+                        <h3 class="card-title">Test Your Understanding</h3>
+                        <div class="card-count">5 Challenges</div>
+                        <p class="card-description">
+                            Master the critical concept that Na⁺ channels have three states: closed, open, and inactivated.
+                        </p>
+                        <ul class="card-features">
+                            <li>Channel state transitions</li>
+                            <li>Inactivation mechanisms</li>
+                            <li>Repolarization causation</li>
+                        </ul>
+                        <a href="challenges_channels.html" class="card-button">Start Challenges</a>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">🚀</div>
+                        <div class="card-label">Interactive Simulator</div>
+                        <h3 class="card-title">Hands-On Exploration</h3>
+                        <div class="card-count">Interactive</div>
+                        <p class="card-description">
+                            Control membrane voltage and observe Na⁺ and K⁺ channel state transitions in real-time.
+                        </p>
+                        <ul class="card-features">
+                            <li>Voltage control interface</li>
+                            <li>State transition visualization</li>
+                            <li>Temporal kinetics display</li>
+                        </ul>
+                        <a href="action_potential_channel_simulator.html" class="card-button">Launch Simulator</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOPIC 4: REFRACTORY -->
+            <div class="topic-section refractory">
+                <div class="topic-header">
+                    <div class="topic-number">4</div>
+                    <h2 class="topic-title">Refractory Periods</h2>
+                    <p class="topic-description">Examining molecular constraints on firing frequency</p>
+                </div>
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-icon">🧠</div>
+                        <div class="card-label">Prediction Challenges</div>
+                        <h3 class="card-title">Test Your Understanding</h3>
+                        <div class="card-count">4 Challenges</div>
+                        <p class="card-description">
+                            Correct the misconception that the Na⁺/K⁺ pump causes refractory periods.
+                        </p>
+                        <ul class="card-features">
+                            <li>Absolute vs relative mechanisms</li>
+                            <li>Channel recovery dynamics</li>
+                            <li>Maximum frequency calculations</li>
+                        </ul>
+                        <a href="challenges_refractory.html" class="card-button">Start Challenges</a>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">🚀</div>
+                        <div class="card-label">Interactive Simulator</div>
+                        <h3 class="card-title">Hands-On Exploration</h3>
+                        <div class="card-count">Interactive</div>
+                        <p class="card-description">
+                            Attempt to trigger second action potentials at varying intervals after the initial spike.
+                        </p>
+                        <ul class="card-features">
+                            <li>Dual stimulus controls</li>
+                            <li>Inter-stimulus timing adjustment</li>
+                            <li>Success/failure visualization</li>
+                        </ul>
+                        <a href="refractory_periods.html" class="card-button">Launch Simulator</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOPIC 5: SALTATORY -->
+            <div class="topic-section saltatory">
+                <div class="topic-header">
+                    <div class="topic-number">5</div>
+                    <h2 class="topic-title">Saltatory Conduction</h2>
+                    <p class="topic-description">Comparing myelinated and unmyelinated axon propagation</p>
+                </div>
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-icon">🧠</div>
+                        <div class="card-label">Prediction Challenges</div>
+                        <h3 class="card-title">Test Your Understanding</h3>
+                        <div class="card-count">4 Challenges</div>
+                        <p class="card-description">
+                            Understand the mechanism by which myelin increases conduction velocity and reduces energy consumption.
+                        </p>
+                        <ul class="card-features">
+                            <li>Passive vs active propagation</li>
+                            <li>Energy efficiency calculations</li>
+                            <li>Clinical applications (MS)</li>
+                        </ul>
+                        <a href="challenges_saltatory.html" class="card-button">Start Challenges</a>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">🚀</div>
+                        <div class="card-label">Interactive Simulator</div>
+                        <h3 class="card-title">Hands-On Exploration</h3>
+                        <div class="card-count">Interactive</div>
+                        <p class="card-description">
+                            Race action potentials down myelinated versus unmyelinated axons to observe speed differences.
+                        </p>
+                        <ul class="card-features">
+                            <li>Side-by-side comparison</li>
+                            <li>Animation speed control</li>
+                            <li>Quantitative metrics display</li>
+                        </ul>
+                        <a href="saltatory_conduction.html" class="card-button">Launch Simulator</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <footer>
+            <p><strong>Action Potential Learning Suite</strong></p>
+            <p>Created by Herr Prof. Dr. Awesome-Sauce (The Unicorn Prof)</p>
+            <p style="margin-top: 15px; opacity: 0.8;">⚠️ No unicorns were harmed in the making of these materials ⚠️</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrochemical Gradient Explorer ENHANCED | Prediction-Based Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .enhancement-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+            box-shadow: 0 2px 8px rgba(72, 187, 120, 0.3);
+        }
+
+        /* ========== PREDICTION CHALLENGE STYLES ========== */
+        .prediction-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 35px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .challenge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .challenge-header h2 {
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .challenge-number {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .challenge-question {
+            background: white;
+            color: #2d3748;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .challenge-question strong {
+            color: #667eea;
+            font-size: 1.15em;
+        }
+
+        .challenge-context {
+            color: #718096;
+            font-size: 0.95em;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .prediction-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .prediction-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            text-align: left;
+            position: relative;
+        }
+
+        .prediction-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .prediction-option.selected {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+            border-width: 3px;
+        }
+
+        .prediction-option.correct {
+            background: #48bb78;
+            border-color: #2f855a;
+            animation: correctPulse 0.6s ease;
+        }
+
+        .prediction-option.incorrect {
+            background: #f56565;
+            border-color: #c53030;
+            animation: incorrectShake 0.5s ease;
+        }
+
+        .option-letter {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-right: 12px;
+        }
+
+        .option-content {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .prediction-feedback {
+            background: white;
+            color: #2d3748;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .prediction-feedback.visible {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-correct {
+            border-left: 5px solid #48bb78;
+        }
+
+        .feedback-incorrect {
+            border-left: 5px solid #f56565;
+        }
+
+        .feedback-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feedback-explanation {
+            margin-top: 15px;
+            padding: 18px;
+            background: #f7fafc;
+            border-radius: 8px;
+            line-height: 1.7;
+            font-size: 1.05em;
+        }
+
+        .misconception-alert {
+            background: #fff5f0;
+            border-left: 4px solid #f56565;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+
+        .misconception-alert strong {
+            color: #c53030;
+        }
+
+        .followup-question {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        .followup-question summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #2c5282;
+            padding: 5px;
+        }
+
+        .followup-question summary:hover {
+            color: #2b6cb0;
+        }
+
+        .followup-answer {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #cbd5e0;
+            line-height: 1.6;
+        }
+
+        .feedback-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: #ebf8ff;
+            border-radius: 8px;
+        }
+
+        .feedback-stat {
+            text-align: center;
+        }
+
+        .feedback-stat-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #3182ce;
+        }
+
+        .feedback-stat-label {
+            color: #718096;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .challenge-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #f7fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .completion-message {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .completion-message h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .completion-message p {
+            font-size: 1.1em;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        /* ========== SIMULATOR LOCK OVERLAY ========== */
+        .simulator-container {
+            position: relative;
+        }
+
+        .simulator-container.locked::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            border-radius: 12px;
+        }
+
+        .unlock-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #667eea;
+            color: white;
+            padding: 30px 50px;
+            border-radius: 12px;
+            font-size: 1.3em;
+            font-weight: 600;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            z-index: 101;
+            text-align: center;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .simulator-container.locked .unlock-message {
+            display: block;
+        }
+
+        .simulator-content {
+            transition: filter 0.3s;
+        }
+
+        .simulator-container.locked .simulator-content {
+            filter: blur(2px);
+            pointer-events: none;
+        }
+
+        /* ========== ORIGINAL GRADIENT EXPLORER STYLES ========== */
+        .learning-objectives {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .learning-objectives h2 {
+            color: #2c5282;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .learning-objectives ul {
+            list-style-position: inside;
+            color: #2d3748;
+            line-height: 1.8;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .ion-section {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 12px;
+            border: 3px solid #e2e8f0;
+        }
+
+        .na-section {
+            border-color: #fc8181;
+        }
+
+        .k-section {
+            border-color: #90cdf4;
+        }
+
+        .ion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #e2e8f0;
+        }
+
+        .na-section .ion-header {
+            border-bottom-color: #fc8181;
+        }
+
+        .k-section .ion-header {
+            border-bottom-color: #90cdf4;
+        }
+
+        .ion-title {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .na-title {
+            color: #e53e3e;
+        }
+
+        .k-title {
+            color: #3182ce;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            display: block;
+            font-size: 1.1em;
+        }
+
+        .slider-container {
+            margin-bottom: 15px;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .slider-label {
+            min-width: 120px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .concentration-slider {
+            flex: 1;
+            height: 10px;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .concentration-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .concentration-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .na-slider {
+            background: linear-gradient(to right, #fff5f5, #fc8181);
+        }
+
+        .k-slider {
+            background: linear-gradient(to right, #ebf8ff, #90cdf4);
+        }
+
+        .value-display {
+            min-width: 80px;
+            text-align: right;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #2d3748;
+        }
+
+        .voltage-control {
+            background: #fffaf0;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #ed8936;
+        }
+
+        .voltage-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2d3748;
+            text-align: center;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .voltage-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, #fc8181, #fbd38d, #68d391);
+        }
+
+        .voltage-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .voltage-slider::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .quick-presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s;
+        }
+
+        .preset-btn:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+            transform: translateY(-2px);
+        }
+
+        .visualization-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 30px;
+        }
+
+        .gradient-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .gradient-card {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .gradient-header {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .force-diagram {
+            position: relative;
+            height: 200px;
+            background: linear-gradient(to right, #fff5f5, #ebf8ff);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .membrane-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #2d3748;
+            transform: translateX(-50%);
+        }
+
+        .membrane-label {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #2d3748;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        .force-arrow {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+
+        .arrow-shaft {
+            height: 8px;
+            background: currentColor;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .arrow-head {
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .force-arrow.arrow-right .arrow-head {
+            border-width: 12px 0 12px 16px;
+            border-color: transparent transparent transparent currentColor;
+        }
+
+        .force-arrow.arrow-left .arrow-head {
+            border-width: 12px 16px 12px 0;
+            border-color: transparent currentColor transparent transparent;
+        }
+
+        .electrical-gradient {
+            color: #3182ce;
+        }
+
+        .concentration-gradient {
+            color: #e53e3e;
+        }
+
+        .force-label {
+            position: absolute;
+            font-size: 0.9em;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: white;
+            z-index: 5;
+        }
+
+        .net-force-summary {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .net-force-value {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .net-force-value.inward {
+            color: #48bb78;
+        }
+
+        .net-force-value.outward {
+            color: #ed8936;
+        }
+
+        .net-force-value.balanced {
+            color: #718096;
+        }
+
+        .net-force-direction {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .side-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .explanation-panel {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+
+        .explanation-panel h3 {
+            color: #7c2d12;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .explanation-panel p {
+            color: #2d3748;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .key-insight {
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .key-insight h4 {
+            color: #234e52;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .gradient-display {
+                grid-template-columns: 1fr;
+            }
+
+            .prediction-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 Voltage-Gated Ion Channels <span class="enhancement-badge">🧠 ENHANCED</span></h1>
+        <p class="subtitle">Understanding Channel States and Action Potential Mechanisms</p>
+
+        <!-- ========== PREDICTION CHALLENGE SYSTEM ========== -->
+        <div id="predictionChallenge" class="prediction-container">
+            <div class="challenge-header">
+                <h2>🧠 Prediction Challenge</h2>
+                <div class="challenge-number">Challenge <span id="currentChallenge">1</span> of 5</div>
+            </div>
+            
+            <div class="challenge-question">
+                <div id="challengeText"></div>
+                <div class="challenge-context" id="challengeContext"></div>
+            </div>
+            
+            <div class="prediction-options" id="predictionOptions">
+                <!-- Dynamically populated -->
+            </div>
+            
+            <div class="prediction-feedback" id="predictionFeedback">
+                <!-- Shows after answer selected -->
+            </div>
+            
+            <div class="challenge-actions">
+                <button id="submitPrediction" class="btn-primary" disabled>Submit Prediction</button>
+                <button id="nextChallenge" class="btn-primary" style="display: none;">Next Challenge →</button>
+            </div>
+        </div>
+
+        <!-- ========== MAIN SIMULATOR (Initially Locked) ========== -->
+        <div id="simulatorContainer" class="simulator-container locked">
+            <div class="unlock-message">
+                🔒 Complete the 5 prediction challenges<br>to unlock the channels simulator
+            </div>
+
+            <div class="simulator-content">
+                <div class="learning-objectives">
+                    <h2>Learning Objectives</h2>
+                    <ul>
+                        <li>Distinguish between electrical gradients and concentration gradients</li>
+                        <li>Explain why Na<sup>+</sup> has TWO forces pushing it into the cell at rest</li>
+                        <li>Explain why K<sup>+</sup> has OPPOSING forces (one in, one out)</li>
+                        <li>Predict ion movement based on electrochemical gradients</li>
+                        <li>Understand how these gradients create the "drawn bow" ready to fire an action potential</li>
+                    </ul>
+                </div>
+
+                <div class="main-grid">
+                    <!-- Sodium Controls -->
+                    <div class="ion-section na-section">
+                        <div class="ion-header">
+                            <div class="ion-title na-title">Na<sup>+</sup> Sodium</div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Ion Concentrations (mM)</label>
+                            
+                            <div class="slider-container">
+                                <div class="slider-row">
+                                    <span class="slider-label">Outside:</span>
+                                    <input type="range" min="50" max="200" value="145" class="concentration-slider na-slider" id="naOutside">
+                                    <span class="value-display" id="naOutsideValue">145 mM</span>
+                                </div>
+                                
+                                <div class="slider-row">
+                                    <span class="slider-label">Inside:</span>
+                                    <input type="range" min="5" max="50" value="12" class="concentration-slider na-slider" id="naInside">
+                                    <span class="value-display" id="naInsideValue">12 mM</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="voltage-control">
+                            <label class="control-label">Membrane Potential</label>
+                            <div class="voltage-value" id="voltageDisplayNa">-70 mV</div>
+                            <input type="range" min="-90" max="50" value="-70" class="voltage-slider" id="voltageSlider">
+                            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.9em; color: #718096;">
+                                <span>-90 mV</span>
+                                <span>+50 mV</span>
+                            </div>
+                        </div>
+
+                        <div class="quick-presets">
+                            <button class="preset-btn" onclick="setPreset('resting')">Resting (-70 mV)</button>
+                            <button class="preset-btn" onclick="setPreset('peak')">Peak (+40 mV)</button>
+                        </div>
+                    </div>
+
+                    <!-- Potassium Controls -->
+                    <div class="ion-section k-section">
+                        <div class="ion-header">
+                            <div class="ion-title k-title">K<sup>+</sup> Potassium</div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label">Ion Concentrations (mM)</label>
+                            
+                            <div class="slider-container">
+                                <div class="slider-row">
+                                    <span class="slider-label">Outside:</span>
+                                    <input type="range" min="1" max="20" value="4" class="concentration-slider k-slider" id="kOutside">
+                                    <span class="value-display" id="kOutsideValue">4 mM</span>
+                                </div>
+                                
+                                <div class="slider-row">
+                                    <span class="slider-label">Inside:</span>
+                                    <input type="range" min="50" max="200" value="140" class="concentration-slider k-slider" id="kInside">
+                                    <span class="value-display" id="kInsideValue">140 mM</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: #f7fafc; padding: 20px; border-radius: 8px; border: 2px solid #e2e8f0;">
+                            <label class="control-label">Membrane Potential (Shared)</label>
+                            <div class="voltage-value" id="voltageDisplayK">-70 mV</div>
+                            <p style="color: #718096; font-size: 0.9em; margin-top: 10px; text-align: center;">
+                                Both ions experience the same membrane potential
+                            </p>
+                        </div>
+
+                        <div class="quick-presets">
+                            <button class="preset-btn" onclick="setPreset('hyperpolarized')">Hyperpolarized (-85 mV)</button>
+                            <button class="preset-btn" onclick="setPreset('threshold')">Threshold (-55 mV)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="visualization-container">
+                    <h2 style="text-align: center; color: #2d3748; margin-bottom: 25px;">Force Diagrams</h2>
+                    
+                    <div class="gradient-display">
+                        <!-- Sodium Forces -->
+                        <div class="gradient-card">
+                            <div class="gradient-header na-title">Na<sup>+</sup> Forces</div>
+                            
+                            <div class="force-diagram" id="naDiagram">
+                                <div class="membrane-line"></div>
+                                <div class="membrane-label">Membrane</div>
+                                
+                                <!-- Electrical gradient arrow -->
+                                <div class="force-arrow electrical-gradient" id="naElectricalArrow" style="top: 35%; transform: translateY(-50%);">
+                                    <div class="arrow-shaft" style="width: 0;"></div>
+                                    <div class="arrow-head"></div>
+                                </div>
+                                <div class="force-label electrical-gradient" id="naElectricalLabel" style="top: 35%; left: 50%; transform: translate(-50%, -50%);">
+                                    Electrical
+                                </div>
+                                
+                                <!-- Concentration gradient arrow -->
+                                <div class="force-arrow concentration-gradient" id="naConcentrationArrow" style="top: 65%; transform: translateY(-50%);">
+                                    <div class="arrow-shaft" style="width: 0;"></div>
+                                    <div class="arrow-head"></div>
+                                </div>
+                                <div class="force-label concentration-gradient" id="naConcentrationLabel" style="top: 65%; left: 50%; transform: translate(-50%, -50%);">
+                                    Concentration
+                                </div>
+                            </div>
+                            
+                            <div class="side-labels">
+                                <span>Outside (extracellular)</span>
+                                <span>Inside (intracellular)</span>
+                            </div>
+                            
+                            <div class="net-force-summary">
+                                <div class="net-force-value" id="naNetForce">→→</div>
+                                <div class="net-force-direction" id="naNetDirection">Strong Inward Drive</div>
+                            </div>
+                        </div>
+
+                        <!-- Potassium Forces -->
+                        <div class="gradient-card">
+                            <div class="gradient-header k-title">K<sup>+</sup> Forces</div>
+                            
+                            <div class="force-diagram" id="kDiagram">
+                                <div class="membrane-line"></div>
+                                <div class="membrane-label">Membrane</div>
+                                
+                                <!-- Electrical gradient arrow -->
+                                <div class="force-arrow electrical-gradient" id="kElectricalArrow" style="top: 35%; transform: translateY(-50%);">
+                                    <div class="arrow-shaft" style="width: 0;"></div>
+                                    <div class="arrow-head"></div>
+                                </div>
+                                <div class="force-label electrical-gradient" id="kElectricalLabel" style="top: 35%; left: 50%; transform: translate(-50%, -50%);">
+                                    Electrical
+                                </div>
+                                
+                                <!-- Concentration gradient arrow -->
+                                <div class="force-arrow concentration-gradient" id="kConcentrationArrow" style="top: 65%; transform: translateY(-50%);">
+                                    <div class="arrow-shaft" style="width: 0;"></div>
+                                    <div class="arrow-head"></div>
+                                </div>
+                                <div class="force-label concentration-gradient" id="kConcentrationLabel" style="top: 65%; left: 50%; transform: translate(-50%, -50%);">
+                                    Concentration
+                                </div>
+                            </div>
+                            
+                            <div class="side-labels">
+                                <span>Outside (extracellular)</span>
+                                <span>Inside (intracellular)</span>
+                            </div>
+                            
+                            <div class="net-force-summary">
+                                <div class="net-force-value" id="kNetForce">←</div>
+                                <div class="net-force-direction" id="kNetDirection">Weak Outward Drive</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="explanation-panel">
+                    <h3>📖 Current State Explanation</h3>
+                    <p id="explanationText"></p>
+                </div>
+
+                <div class="key-insight">
+                    <h4>💡 Key Insight: The "Drawn Bow"</h4>
+                    <p>At rest, Na<sup>+</sup> has enormous pressure to enter (both gradients aligned), while K<sup>+</sup> has only weak pressure to exit (gradients opposing). This asymmetry is like a drawn bow - tremendous potential energy ready to be released. Opening Na<sup>+</sup> channels triggers the action potential!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== PREDICTION CHALLENGE DATA ========== 
+        const predictionChallenges = [
+            {
+                id: 1,
+                question: "How many conformational states does a voltage-gated Na⁺ channel have?",
+                context: "Think about what happens during an entire action potential cycle.",
+                options: [
+                    {
+                        text: "THREE states: Closed, Open, Inactivated",
+                        correct: true,
+                        explanation: "Exactly! THREE distinct states: 1) CLOSED (at rest): activation gate shut. 2) OPEN (depolarization): gate opens, Na⁺ rushes in. 3) INACTIVATED (peak): ball-and-chain blocks pore. This third state is CRITICAL - it terminates the AP and creates refractory periods!"
+                    },
+                    {
+                        text: "TWO states: Open and Closed",
+                        correct: false,
+                        explanation: "Most common misconception! Many think channels are simple on/off switches. But Na⁺ channels have a THIRD state: INACTIVATED. The inactivation ball physically plugs the pore even when the gate is open. Without this, APs wouldn't terminate!",
+                        misconception: "Binary thinking - missing inactivation"
+                    },
+                    {
+                        text: "FOUR states: Closed, Opening, Open, Inactivated",
+                        correct: false,
+                        explanation: "Overthinking! While channels transition between states (which takes time), we classify by stable conformations. THREE: Closed, Open, Inactivated. 'Opening' is the brief transition, not a stable state.",
+                        misconception: "Confusing transitions with states"
+                    },
+                    {
+                        text: "It varies depending on voltage",
+                        correct: false,
+                        explanation: "The NUMBER of states doesn't change with voltage! Voltage determines WHICH state the channel is in, but the channel always has these three conformational possibilities.",
+                        misconception: "Misunderstanding voltage role"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                question: "At the PEAK of an action potential (+30 mV), voltage-gated Na⁺ channels are:",
+                context: "The membrane has just reached its most positive value.",
+                options: [
+                    {
+                        text: "INACTIVATED (ball blocks the pore)",
+                        correct: true,
+                        explanation: "Perfect! At peak, Na⁺ channels are INACTIVATED, not open! Timeline: 0ms = OPEN, Na⁺ rushes in. ~0.5ms = Still OPEN, voltage rising. ~1ms = INACTIVATE, Na⁺ flow STOPS. Peak occurs BECAUSE inactivation stopped the influx!",
+                        followup: {
+                            question: "If Na⁺ channels are inactivated at peak, what causes repolarization?",
+                            answer: "K⁺ channels opening! They're 'delayed rectifiers' - open slower than Na⁺. K⁺ EFFLUX (outward current) drives repolarization. NOT Na⁺ closing - it's K⁺ opening!"
+                        }
+                    },
+                    {
+                        text: "OPEN (allowing maximum Na⁺ entry)",
+                        correct: false,
+                        explanation: "Common misconception! Na⁺ channels have INACTIVATED by peak (~1ms after opening). The peak is the MOMENT inactivation stops further Na⁺ entry. If they stayed open, voltage would keep rising to +60mV!",
+                        misconception: "Thinking channels stay open at peak"
+                    },
+                    {
+                        text: "CLOSED (deactivated)",
+                        correct: false,
+                        explanation: "Terminology matters! At peak, channels are INACTIVATED, not 'closed'. Inactivated = ball physically blocks pore while activation gate is still open. They return to Closed only after repolarizing below ~-50mV.",
+                        misconception: "Confusing inactivation with deactivation"
+                    },
+                    {
+                        text: "Transitioning between open and closed",
+                        correct: false,
+                        explanation: "At peak, channels are in STABLE inactivated state. The transition happened ~0.5ms earlier (Open → Inactivated). They stay inactivated until voltage drops.",
+                        misconception: "Not understanding state timing"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                question: "Can voltage-gated Na⁺ channels transition DIRECTLY from Inactivated → Open?",
+                context: "After an AP, channels are inactivated. Can strong depolarization immediately reopen them?",
+                options: [
+                    {
+                        text: "NO - must return to Closed state first",
+                        correct: true,
+                        explanation: "Exactly! Required path: Inactivated → Closed → Open. Cannot skip to Inactivated → Open. The inactivation gate must be removed (only happens at negative voltages), returning to Closed. THEN depolarization can reopen it. This is the molecular basis of ABSOLUTE REFRACTORY PERIOD!",
+                        followup: {
+                            question: "How long does recovery take?",
+                            answer: "About 1-2 milliseconds at hyperpolarized voltage. This recovery time IS the absolute refractory period. Why neurons can't fire faster than ~500 Hz - physical gate recovery limits it."
+                        }
+                    },
+                    {
+                        text: "YES - strong voltage can reopen them",
+                        correct: false,
+                        explanation: "Impossible! Channel structure prevents this. Inactivation ball blocks pore and can ONLY be removed by negative voltage. Strong depolarization KEEPS them inactivated. Why absolute refractory is 'absolute' - no stimulus overcomes it!",
+                        misconception: "Not understanding structural constraints"
+                    },
+                    {
+                        text: "YES - during relative refractory only",
+                        correct: false,
+                        explanation: "Relative refractory is when SOME channels recovered to Closed (can reopen with strong stimulus), but many still inactivated. But individual channels still can't go Inactivated → Open directly.",
+                        misconception: "Confusing population vs individual"
+                    },
+                    {
+                        text: "Depends on depolarization strength",
+                        correct: false,
+                        explanation: "Transition pathway is STRUCTURAL, not stimulus-dependent! The inactivation ball physically blocks pore and requires negative voltage for removal. Protein structure dictates pathway.",
+                        misconception: "Thinking stimulus overrides mechanics"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                question: "What CAUSES repolarization (the falling phase of the AP)?",
+                context: "After peak at +30 mV, voltage drops back toward -70 mV. What drives this?",
+                options: [
+                    {
+                        text: "K⁺ channels opening (K⁺ flows OUT)",
+                        correct: true,
+                        explanation: "Perfect! Repolarization = K⁺ EFFLUX: Voltage-gated K⁺ channels open (delayed ~0.5-1ms), K⁺ flows OUT, outward positive current makes inside negative, membrane drops from +30 → -70 mV. Critical: Na⁺ inactivation STOPS depolarization, but K⁺ efflux CAUSES repolarization!",
+                        followup: {
+                            question: "Why don't K⁺ channels open simultaneously with Na⁺?",
+                            answer: "K⁺ channels are 'delayed rectifiers' - respond ~0.5-1ms slower. This delay is ESSENTIAL! If simultaneous, they'd cancel Na⁺ influx and no AP would occur. The kinetic difference creates the waveform."
+                        }
+                    },
+                    {
+                        text: "Na⁺ channels closing (stopping entry)",
+                        correct: false,
+                        explanation: "Common misconception (35%)! Na⁺ INACTIVATION stops depolarization (prevents further rise), but doesn't CAUSE repolarization. Stopping influx ≠ creating efflux. Need OUTWARD current (K⁺ leaving) to actively drop voltage.",
+                        misconception: "Confusing cessation with reversal"
+                    },
+                    {
+                        text: "Na⁺/K⁺ pump restoring balance",
+                        correct: false,
+                        explanation: "Pump is TOO SLOW! Takes ~10ms per cycle, repolarization happens in 1-2ms. Pump MAINTAINS gradients over time (after many APs), doesn't participate in rapid repolarization. That's voltage-gated K⁺ channels.",
+                        misconception: "Overestimating pump speed"
+                    },
+                    {
+                        text: "Passive diffusion to equilibrium",
+                        correct: false,
+                        explanation: "Repolarization is ACTIVE (requires K⁺ channel opening), not passive. At peak, K⁺ channels actively opening in response to voltage. This is voltage-gated activity driving current. Speed (1-2ms) too fast for passive.",
+                        misconception: "Not recognizing active processes"
+                    }
+                ]
+            },
+            {
+                id: 5,
+                question: "Which channels respond MORE SLOWLY to voltage changes?",
+                context: "Both are voltage-gated, but have different kinetics.",
+                options: [
+                    {
+                        text: "K⁺ channels (delayed response)",
+                        correct: true,
+                        explanation: "Exactly! K⁺ channels are 'delayed rectifiers': Open ~0.5-1ms SLOWER than Na⁺. Close more SLOWLY too (→ undershoot). This timing ESSENTIAL: Fast Na⁺ (rapid upstroke), Slow K⁺ (delayed downstroke). If identical kinetics, they'd cancel → no AP! Waveform comes from kinetic difference.",
+                        completion: true
+                    },
+                    {
+                        text: "Na⁺ channels (slower activation)",
+                        correct: false,
+                        explanation: "Backwards! Na⁺ channels are FAST - activate in ~0.1-0.2ms. This rapid response creates explosive upstroke. K⁺ channels are slow (~0.5-1ms delay), why repolarization is slower than depolarization.",
+                        misconception: "Reversed kinetic properties"
+                    },
+                    {
+                        text: "Both respond at same speed",
+                        correct: false,
+                        explanation: "If identical kinetics, APs wouldn't work! TIMING DIFFERENCE is fundamental. Na⁺ fast (rapid depolarization) → inactivate. K⁺ slow (delayed repolarization). Sequential activation creates characteristic waveform.",
+                        misconception: "Not recognizing specialization"
+                    },
+                    {
+                        text: "Depends on stimulus strength",
+                        correct: false,
+                        explanation: "Channel kinetics are INTRINSIC to protein structure, not stimulus-dependent. Strong/weak stimuli don't change response speed - determined by amino acid sequence. Relative timing always Na⁺ fast, K⁺ slow.",
+                        misconception: "Thinking stimulus affects kinetics"
+                    }
+                ]
+            }
+        ];
+
+        // ========== PREDICTION SYSTEM STATE ========== 
+        let currentChallengeIndex = 0;
+        let selectedOption = null;
+        let challengeResults = [];
+        
+        // ========== PREDICTION SYSTEM FUNCTIONS ========== 
+        function initPredictionSystem() {
+            loadChallenge(0);
+        }
+
+        function loadChallenge(index) {
+            if (index >= predictionChallenges.length) {
+                showCompletionScreen();
+                return;
+            }
+            
+            currentChallengeIndex = index;
+            const challenge = predictionChallenges[index];
+            
+            // Update header
+            document.getElementById('currentChallenge').textContent = challenge.id;
+            
+            // Update question
+            document.getElementById('challengeText').innerHTML = `
+                <strong>${challenge.question}</strong>
+            `;
+            document.getElementById('challengeContext').textContent = challenge.context;
+            
+            // Build options
+            const optionsContainer = document.getElementById('predictionOptions');
+            optionsContainer.innerHTML = '';
+            
+            challenge.options.forEach((option, idx) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'prediction-option';
+                optionDiv.innerHTML = `
+                    <div class="option-content">
+                        <div class="option-letter">${String.fromCharCode(65 + idx)}</div>
+                        <div>${option.text}</div>
+                    </div>
+                `;
+                optionDiv.onclick = () => selectOption(idx);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            // Reset UI
+            document.getElementById('submitPrediction').style.display = 'block';
+            document.getElementById('submitPrediction').disabled = true;
+            document.getElementById('nextChallenge').style.display = 'none';
+            document.getElementById('predictionFeedback').classList.remove('visible');
+            selectedOption = null;
+        }
+
+        function selectOption(idx) {
+            selectedOption = idx;
+            
+            // Update visuals
+            document.querySelectorAll('.prediction-option').forEach((opt, i) => {
+                opt.classList.toggle('selected', i === idx);
+            });
+            
+            document.getElementById('submitPrediction').disabled = false;
+        }
+
+        function submitPrediction() {
+            if (selectedOption === null) return;
+            
+            const challenge = predictionChallenges[currentChallengeIndex];
+            const option = challenge.options[selectedOption];
+            const isCorrect = option.correct;
+            
+            // Record result
+            challengeResults.push({
+                challengeId: challenge.id,
+                selectedOption,
+                correct: isCorrect
+            });
+            
+            // Show feedback
+            showFeedback(isCorrect, option, challenge);
+            
+            // Update option styling
+            document.querySelectorAll('.prediction-option').forEach((opt, i) => {
+                opt.style.pointerEvents = 'none';
+                if (challenge.options[i].correct) {
+                    opt.classList.add('correct');
+                } else if (i === selectedOption) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            // Update buttons
+            document.getElementById('submitPrediction').style.display = 'none';
+            document.getElementById('nextChallenge').style.display = 'block';
+        }
+
+        function showFeedback(isCorrect, option, challenge) {
+            const feedbackDiv = document.getElementById('predictionFeedback');
+            feedbackDiv.className = `prediction-feedback visible ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`;
+            
+            let html = `
+                <div class="feedback-title">
+                    ${isCorrect ? '✅ Correct!' : '❌ Not Quite'}
+                </div>
+                <div class="feedback-explanation">
+                    ${option.explanation}
+                </div>
+            `;
+            
+            // Add misconception alert if incorrect
+            if (!isCorrect && option.misconception) {
+                html += `
+                    <div class="misconception-alert">
+                        <strong>💡 Common Misconception:</strong> ${option.misconception}
+                    </div>
+                `;
+            }
+            
+            // Add follow-up if exists
+            if (challenge.followup) {
+                html += `
+                    <div class="followup-question">
+                        <details>
+                            <summary>${challenge.followup.question}</summary>
+                            <div class="followup-answer">${challenge.followup.answer}</div>
+                        </details>
+                    </div>
+                `;
+            }
+            
+            feedbackDiv.innerHTML = html;
+        }
+
+        function showCompletionScreen() {
+            const correctCount = challengeResults.filter(r => r.correct).length;
+            const totalCount = challengeResults.length;
+            const percentCorrect = Math.round((correctCount / totalCount) * 100);
+            
+            const predictionContainer = document.getElementById('predictionChallenge');
+            predictionContainer.innerHTML = `
+                <div class="completion-message">
+                    <h2>🎉 Prediction Challenges Complete!</h2>
+                    <p>
+                        You've completed all 5 prediction challenges! You now understand the fundamental 
+                        principle behind action potentials: Na⁺ has BOTH gradients pushing inward 
+                        (explosive depolarization) while K⁺ has opposing gradients (gentle repolarization).
+                    </p>
+                    
+                    <div class="feedback-stats">
+                        <div class="feedback-stat">
+                            <div class="feedback-stat-value">${correctCount}/${totalCount}</div>
+                            <div class="feedback-stat-label">Correct First Try</div>
+                        </div>
+                        <div class="feedback-stat">
+                            <div class="feedback-stat-value">${percentCorrect}%</div>
+                            <div class="feedback-stat-label">Score</div>
+                        </div>
+                        <div class="feedback-stat">
+                            <div class="feedback-stat-value">🧠</div>
+                            <div class="feedback-stat-label">Brain Upgraded!</div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="unlockSimulation()" class="btn-primary" 
+                            style="width: 100%; margin-top: 25px; font-size: 1.2em; padding: 18px;">
+                        🔓 Unlock Full Interactive Simulator
+                    </button>
+                </div>
+            `;
+        }
+
+        function unlockSimulation() {
+            // Remove lock
+            document.getElementById('simulatorContainer').classList.remove('locked');
+            
+            // Scroll to simulator
+            document.getElementById('simulatorContainer').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+            
+            // Hide prediction container after animation
+            setTimeout(() => {
+                document.getElementById('predictionChallenge').style.display = 'none';
+            }, 500);
+            
+            // Show success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; left: 20px;
+                max-width: 500px; margin: 0 auto;
+                background: linear-gradient(135deg, #48bb78, #38a169);
+                color: white; padding: 20px 30px; border-radius: 12px;
+                font-weight: 600; font-size: 1.1em; z-index: 10000;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center;
+            `;
+            notification.innerHTML = `
+                ✅ Simulator Unlocked!<br>
+                <span style="font-size: 0.9em; opacity: 0.9;">Explore the gradients you just mastered</span>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transition = 'all 0.5s';
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateY(-20px)';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // ========== SIMULATOR CODE (Original) ========== 
+        const naOutside = document.getElementById('naOutside');
+        const naInside = document.getElementById('naInside');
+        const kOutside = document.getElementById('kOutside');
+        const kInside = document.getElementById('kInside');
+        const voltageSlider = document.getElementById('voltageSlider');
+
+        // Add event listeners
+        naOutside.addEventListener('input', updateDisplay);
+        naInside.addEventListener('input', updateDisplay);
+        kOutside.addEventListener('input', updateDisplay);
+        kInside.addEventListener('input', updateDisplay);
+        voltageSlider.addEventListener('input', updateDisplay);
+
+        function updateDisplay() {
+            // Update value displays
+            document.getElementById('naOutsideValue').textContent = naOutside.value + ' mM';
+            document.getElementById('naInsideValue').textContent = naInside.value + ' mM';
+            document.getElementById('kOutsideValue').textContent = kOutside.value + ' mM';
+            document.getElementById('kInsideValue').textContent = kInside.value + ' mM';
+            
+            const voltage = parseInt(voltageSlider.value);
+            document.getElementById('voltageDisplayNa').textContent = voltage + ' mV';
+            document.getElementById('voltageDisplayK').textContent = voltage + ' mV';
+
+            // Calculate and display forces
+            updateForces();
+            updateExplanation();
+        }
+
+        function updateForces() {
+            const voltage = parseInt(voltageSlider.value);
+            const naOut = parseInt(naOutside.value);
+            const naIn = parseInt(naInside.value);
+            const kOut = parseInt(kOutside.value);
+            const kIn = parseInt(kInside.value);
+
+            // Sodium forces
+            const naConcentrationRatio = naOut / naIn;
+            const naConcentrationStrength = Math.min(naConcentrationRatio * 20, 150);
+            const naElectricalStrength = voltage < 0 ? Math.abs(voltage) * 1.5 : 0;
+
+            updateArrow('na', 'Electrical', naElectricalStrength, voltage < 0 ? 'right' : 'left');
+            updateArrow('na', 'Concentration', naConcentrationStrength, 'right');
+
+            const naNetStrength = naElectricalStrength + naConcentrationStrength;
+            updateNetForce('na', naNetStrength, 'inward');
+
+            // Potassium forces
+            const kConcentrationRatio = kIn / kOut;
+            const kConcentrationStrength = Math.min(kConcentrationRatio * 20, 150);
+            const kElectricalStrength = voltage < 0 ? Math.abs(voltage) * 1.5 : 0;
+
+            updateArrow('k', 'Electrical', kElectricalStrength, voltage < 0 ? 'right' : 'left');
+            updateArrow('k', 'Concentration', kConcentrationStrength, 'left');
+
+            const kNetStrength = kConcentrationStrength - kElectricalStrength;
+            const kDirection = kNetStrength > 0 ? 'outward' : kNetStrength < 0 ? 'inward' : 'balanced';
+            updateNetForce('k', Math.abs(kNetStrength), kDirection);
+        }
+
+        function updateArrow(ion, type, strength, direction) {
+            const arrowId = ion + type + 'Arrow';
+            const arrow = document.getElementById(arrowId);
+            
+            arrow.classList.remove('arrow-left', 'arrow-right');
+            arrow.classList.add('arrow-' + direction);
+            
+            const maxWidth = 140;
+            const width = Math.min(strength, maxWidth);
+            
+            if (direction === 'right') {
+                arrow.style.left = '10%';
+                arrow.style.right = 'auto';
+                arrow.innerHTML = `
+                    <div class="arrow-shaft" style="width: ${width}px;"></div>
+                    <div class="arrow-head"></div>
+                `;
+            } else {
+                arrow.style.right = '10%';
+                arrow.style.left = 'auto';
+                arrow.innerHTML = `
+                    <div class="arrow-head"></div>
+                    <div class="arrow-shaft" style="width: ${width}px;"></div>
+                `;
+            }
+        }
+
+        function updateNetForce(ion, strength, direction) {
+            const netForceEl = document.getElementById(ion + 'NetForce');
+            const netDirectionEl = document.getElementById(ion + 'NetDirection');
+            
+            netForceEl.className = 'net-force-value';
+            
+            if (direction === 'inward') {
+                if (strength > 100) {
+                    netForceEl.textContent = '→→→';
+                    netForceEl.classList.add('inward');
+                    netDirectionEl.textContent = 'STRONG Inward Drive';
+                } else if (strength > 50) {
+                    netForceEl.textContent = '→→';
+                    netForceEl.classList.add('inward');
+                    netDirectionEl.textContent = 'Moderate Inward Drive';
+                } else {
+                    netForceEl.textContent = '→';
+                    netForceEl.classList.add('inward');
+                    netDirectionEl.textContent = 'Weak Inward Drive';
+                }
+            } else if (direction === 'outward') {
+                if (strength > 100) {
+                    netForceEl.textContent = '←←←';
+                    netForceEl.classList.add('outward');
+                    netDirectionEl.textContent = 'STRONG Outward Drive';
+                } else if (strength > 50) {
+                    netForceEl.textContent = '←←';
+                    netForceEl.classList.add('outward');
+                    netDirectionEl.textContent = 'Moderate Outward Drive';
+                } else {
+                    netForceEl.textContent = '←';
+                    netForceEl.classList.add('outward');
+                    netDirectionEl.textContent = 'Weak Outward Drive';
+                }
+            } else {
+                netForceEl.textContent = '←→';
+                netForceEl.classList.add('balanced');
+                netDirectionEl.textContent = 'Forces Nearly Balanced';
+            }
+        }
+
+        function updateExplanation() {
+            const voltage = parseInt(voltageSlider.value);
+            const naOut = parseInt(naOutside.value);
+            const naIn = parseInt(naInside.value);
+            const kOut = parseInt(kOutside.value);
+            const kIn = parseInt(kInside.value);
+            
+            const panel = document.getElementById('explanationText');
+            
+            let text = '';
+            
+            if (voltage < -60) {
+                text = `At ${voltage} mV (resting/hyperpolarized), the inside is negative. `;
+                text += `Na<sup>+</sup> (${naOut} mM outside vs ${naIn} mM inside) has BOTH concentration gradient (high → low) and electrical gradient (negative inside attracts positive ions) pushing it INWARD. `;
+                text += `K<sup>+</sup> (${kIn} mM inside vs ${kOut} mM outside) has concentration pushing it OUTWARD, but electrical pulling it INWARD - these forces nearly balance, so K<sup>+</sup> slowly leaks out.`;
+            } else if (voltage < -40) {
+                text = `At ${voltage} mV (threshold region), the inside is becoming less negative. `;
+                text += `Na<sup>+</sup> still has strong inward drive from both gradients. `;
+                text += `K<sup>+</sup> forces are still nearly balanced but the electrical pull inward is weakening as voltage rises.`;
+            } else if (voltage < 20) {
+                text = `At ${voltage} mV (rising phase), the inside is approaching zero or positive. `;
+                text += `Na<sup>+</sup> concentration gradient still pushes inward, but electrical gradient is weakening or reversing. `;
+                text += `K<sup>+</sup> now has BOTH forces pushing outward - concentration gradient AND electrical (positive inside repels positive ions).`;
+            } else {
+                text = `At ${voltage} mV (peak), the inside is POSITIVE! `;
+                text += `Na<sup>+</sup> electrical gradient now OPPOSES entry (positive repels positive), though concentration still favors inward. `;
+                text += `K<sup>+</sup> has STRONG outward drive - both concentration AND electrical gradients push it out, causing rapid repolarization.`;
+            }
+            
+            panel.innerHTML = text;
+        }
+
+        function setPreset(preset) {
+            switch(preset) {
+                case 'resting':
+                    voltageSlider.value = -70;
+                    break;
+                case 'threshold':
+                    voltageSlider.value = -55;
+                    break;
+                case 'peak':
+                    voltageSlider.value = 40;
+                    break;
+                case 'hyperpolarized':
+                    voltageSlider.value = -85;
+                    break;
+            }
+            updateDisplay();
+        }
+
+        // ========== EVENT LISTENERS ========== 
+        document.getElementById('submitPrediction').onclick = submitPrediction;
+        document.getElementById('nextChallenge').onclick = () => {
+            loadChallenge(currentChallengeIndex + 1);
+        };
+
+        // ========== INITIALIZE ========== 
+        window.addEventListener('DOMContentLoaded', () => {
+            initPredictionSystem();
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>

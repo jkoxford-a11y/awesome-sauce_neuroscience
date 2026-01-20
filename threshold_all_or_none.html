@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threshold & All-or-None Law | Neuroscience Module</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .learning-objectives {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .learning-objectives h2 {
+            color: #2c5282;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .learning-objectives ul {
+            list-style-position: inside;
+            color: #2d3748;
+            line-height: 1.8;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .control-panel {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .control-panel h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .stimulus-control {
+            margin-bottom: 25px;
+        }
+
+        .stimulus-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stimulus-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2d3748;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid #cbd5e0;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .stimulus-slider {
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(to right, #e2e8f0, #48bb78, #f6ad55, #fc8181);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .stimulus-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .stimulus-slider::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .threshold-indicator {
+            background: #fff5f5;
+            border: 2px solid #fc8181;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .threshold-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #c53030;
+            text-align: center;
+        }
+
+        .inject-button {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+        }
+
+        .inject-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.6);
+        }
+
+        .inject-button:active {
+            transform: translateY(0);
+        }
+
+        .quick-presets {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .preset-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .preset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-subthreshold { background: #cbd5e0; color: #2d3748; }
+        .btn-threshold { background: #ed8936; }
+        .btn-suprathreshold { background: #e53e3e; }
+        .btn-massive { background: #9f7aea; }
+
+        .visualization-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .response-type {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .response-none {
+            background: #edf2f7;
+            color: #4a5568;
+            border: 2px solid #cbd5e0;
+        }
+
+        .response-graded {
+            background: #fef5e7;
+            color: #d69e2e;
+            border: 2px solid #ed8936;
+        }
+
+        .response-action {
+            background: #fef5f5;
+            color: #c53030;
+            border: 2px solid #fc8181;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .graph-container {
+            position: relative;
+            height: 300px;
+            background: #edf2f7;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #cbd5e0;
+        }
+
+        .graph-axis {
+            position: absolute;
+            background: #2d3748;
+        }
+
+        .y-axis {
+            left: 50px;
+            top: 20px;
+            bottom: 40px;
+            width: 2px;
+        }
+
+        .x-axis {
+            left: 50px;
+            right: 20px;
+            bottom: 40px;
+            height: 2px;
+        }
+
+        .axis-label {
+            position: absolute;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .y-label {
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+        }
+
+        .x-label {
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .threshold-line {
+            position: absolute;
+            left: 50px;
+            right: 20px;
+            height: 2px;
+            background: #fc8181;
+            border-top: 2px dashed #e53e3e;
+        }
+
+        .threshold-label {
+            position: absolute;
+            right: 25px;
+            background: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #c53030;
+        }
+
+        .voltage-trace {
+            position: absolute;
+            left: 52px;
+            transition: all 0.5s ease-out;
+        }
+
+        .history-panel {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-panel h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .trial-entry {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 15px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            align-items: center;
+        }
+
+        .trial-failed {
+            background: #edf2f7;
+            border-left: 4px solid #cbd5e0;
+        }
+
+        .trial-success {
+            background: #fef5f5;
+            border-left: 4px solid #fc8181;
+        }
+
+        .trial-number {
+            font-weight: bold;
+            color: #4a5568;
+            font-size: 1.1em;
+        }
+
+        .trial-stimulus {
+            color: #2d3748;
+        }
+
+        .trial-result {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .result-failed {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .result-success {
+            background: #fc8181;
+            color: white;
+        }
+
+        .clear-history {
+            width: 100%;
+            padding: 10px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            color: #2d3748;
+        }
+
+        .clear-history:hover {
+            background: #cbd5e0;
+        }
+
+        .explanation-panel {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+
+        .explanation-panel h3 {
+            color: #7c2d12;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .explanation-panel p {
+            color: #2d3748;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .analogy-box {
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .analogy-box h4 {
+            color: #234e52;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .analogy-box p {
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Threshold & All-or-None Law</h1>
+        <p class="subtitle">Exploring the binary nature of action potentials</p>
+
+        <div class="learning-objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Define threshold potential and explain its significance</li>
+                <li>Demonstrate that action potentials follow the all-or-none law</li>
+                <li>Distinguish between subthreshold responses (graded potentials) and action potentials</li>
+                <li>Explain why stronger stimuli don't produce stronger action potentials</li>
+                <li>Predict whether a given stimulus will trigger an action potential</li>
+            </ul>
+        </div>
+
+        <div class="main-grid">
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <h2>🔬 Stimulus Injection</h2>
+                
+                <div class="stimulus-control">
+                    <div class="stimulus-display">
+                        <span style="font-weight: 600; color: #4a5568;">Stimulus Strength:</span>
+                        <div class="stimulus-value" id="stimulusDisplay">50 pA</div>
+                    </div>
+                    <input type="range" min="0" max="200" value="50" class="stimulus-slider" id="stimulusSlider">
+                    <div style="display: flex; justify-content: space-between; color: #718096; font-size: 0.9em; margin-top: 8px;">
+                        <span>0 pA (no stimulus)</span>
+                        <span>200 pA (massive)</span>
+                    </div>
+                </div>
+
+                <div class="threshold-indicator">
+                    <div class="threshold-value">Threshold: 100 pA (-55 mV)</div>
+                    <p style="color: #4a5568; margin-top: 8px; text-align: center; font-size: 0.9em;">
+                        Stimulus must reach this level to trigger an AP
+                    </p>
+                </div>
+
+                <button class="inject-button" onclick="injectCurrent()">
+                    💉 INJECT CURRENT
+                </button>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+                    <h3 style="color: #2d3748; margin-bottom: 15px; font-size: 1.1em;">Quick Test Values:</h3>
+                    <div class="quick-presets">
+                        <button class="preset-btn btn-subthreshold" onclick="setStimulus(40)">Subthreshold<br>40 pA</button>
+                        <button class="preset-btn btn-subthreshold" onclick="setStimulus(80)">Near Threshold<br>80 pA</button>
+                        <button class="preset-btn btn-threshold" onclick="setStimulus(100)">At Threshold<br>100 pA</button>
+                        <button class="preset-btn btn-suprathreshold" onclick="setStimulus(130)">Suprathreshold<br>130 pA</button>
+                        <button class="preset-btn btn-massive" onclick="setStimulus(200)">Massive<br>200 pA</button>
+                    </div>
+                </div>
+
+                <div class="stats-panel">
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalTrials">0</div>
+                        <div class="stat-label">Total Trials</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="successCount">0</div>
+                        <div class="stat-label">APs Fired</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="failCount">0</div>
+                        <div class="stat-label">Failed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Panel -->
+            <div class="visualization-panel">
+                <h2 style="text-align: center; color: #2d3748; margin-bottom: 20px;">Neuron Response</h2>
+                
+                <div class="response-type" id="responseType">
+                    Ready to Test
+                </div>
+
+                <div class="graph-container" id="graphContainer">
+                    <div class="graph-axis y-axis"></div>
+                    <div class="graph-axis x-axis"></div>
+                    <div class="axis-label y-label">Membrane Potential (mV)</div>
+                    <div class="axis-label x-label">Time (ms)</div>
+                    
+                    <!-- Threshold line -->
+                    <div class="threshold-line" id="thresholdLine" style="top: 90px;">
+                        <span class="threshold-label">Threshold (-55 mV)</span>
+                    </div>
+                    
+                    <!-- Voltage trace will be drawn here -->
+                    <canvas id="traceCanvas" width="1200" height="300"></canvas>
+                </div>
+
+                <div class="history-panel">
+                    <h3>📊 Trial History</h3>
+                    <div id="historyList">
+                        <p style="color: #718096; text-align: center;">No trials yet. Inject current to begin!</p>
+                    </div>
+                    <button class="clear-history" onclick="clearHistory()">Clear History</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation-panel" id="explanationPanel">
+            <h3>💡 Understanding the Result</h3>
+            <p id="explanationText">
+                Adjust the stimulus strength slider and click "Inject Current" to test whether the neuron will fire an action potential. The threshold is set at 100 pA (which would bring the membrane to -55 mV). Watch what happens with stimuli above and below threshold!
+            </p>
+        </div>
+
+        <div class="analogy-box">
+            <h4>🚽 The Toilet Flush Analogy</h4>
+            <p>
+                An action potential is like flushing a toilet. Pressing the lever lightly (subthreshold) doesn't flush - nothing happens. Once you press hard enough to reach threshold, the toilet flushes completely every time. Pressing HARDER doesn't make it flush more or faster - it's the same flush whether you barely reached threshold or pressed with all your strength. This is the <strong>all-or-none law</strong>: action potentials either happen completely or don't happen at all. There's no such thing as a "partial" action potential, just like there's no such thing as a "partial" flush!
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let trialHistory = [];
+        let trialNumber = 0;
+        const THRESHOLD = 100; // pA
+        
+        const stimulusSlider = document.getElementById('stimulusSlider');
+        const stimulusDisplay = document.getElementById('stimulusDisplay');
+
+        stimulusSlider.addEventListener('input', function() {
+            stimulusDisplay.textContent = this.value + ' pA';
+        });
+
+        function setStimulus(value) {
+            stimulusSlider.value = value;
+            stimulusDisplay.textContent = value + ' pA';
+        }
+
+        function injectCurrent() {
+            const stimulus = parseInt(stimulusSlider.value);
+            trialNumber++;
+            
+            // Determine if threshold is reached
+            const reachedThreshold = stimulus >= THRESHOLD;
+            
+            // Record trial
+            trialHistory.unshift({
+                number: trialNumber,
+                stimulus: stimulus,
+                success: reachedThreshold
+            });
+            
+            // Keep only last 10 trials
+            if (trialHistory.length > 10) {
+                trialHistory.pop();
+            }
+            
+            // Update displays
+            updateResponseType(stimulus, reachedThreshold);
+            drawVoltageTrace(stimulus, reachedThreshold);
+            updateHistory();
+            updateStats();
+            updateExplanation(stimulus, reachedThreshold);
+        }
+
+        function updateResponseType(stimulus, reachedThreshold) {
+            const responseType = document.getElementById('responseType');
+            
+            if (stimulus < THRESHOLD * 0.3) {
+                responseType.className = 'response-type response-none';
+                responseType.textContent = '❌ No Response (too weak)';
+            } else if (stimulus < THRESHOLD) {
+                responseType.className = 'response-type response-graded';
+                responseType.textContent = '📉 Graded Potential (subthreshold)';
+            } else {
+                responseType.className = 'response-type response-action';
+                responseType.textContent = '⚡ ACTION POTENTIAL!';
+            }
+        }
+
+        function drawVoltageTrace(stimulus, reachedThreshold) {
+            const canvas = document.getElementById('traceCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Calculate voltage response
+            let timePoints = [];
+            let voltages = [];
+            
+            if (reachedThreshold) {
+                // Full action potential
+                for (let t = 0; t <= 5; t += 0.1) {
+                    timePoints.push(t);
+                    
+                    if (t < 0.5) {
+                        voltages.push(-70);
+                    } else if (t < 1.0) {
+                        // Rising phase
+                        const progress = (t - 0.5) / 0.5;
+                        voltages.push(-70 + 110 * progress);
+                    } else if (t < 2.0) {
+                        // Falling phase
+                        const progress = (t - 1.0) / 1.0;
+                        voltages.push(40 - 120 * progress);
+                    } else if (t < 3.0) {
+                        // Hyperpolarization
+                        const progress = (t - 2.0) / 1.0;
+                        voltages.push(-80 + 10 * progress);
+                    } else {
+                        voltages.push(-70);
+                    }
+                }
+            } else {
+                // Graded potential (proportional to stimulus)
+                const maxDepolarization = (stimulus / THRESHOLD) * 15; // Max 15 mV for subthreshold
+                
+                for (let t = 0; t <= 5; t += 0.1) {
+                    timePoints.push(t);
+                    
+                    if (t < 0.5) {
+                        voltages.push(-70);
+                    } else if (t < 1.5) {
+                        // Rise
+                        const progress = (t - 0.5) / 1.0;
+                        voltages.push(-70 + maxDepolarization * Math.sin(progress * Math.PI / 2));
+                    } else if (t < 3.5) {
+                        // Decay
+                        const progress = (t - 1.5) / 2.0;
+                        voltages.push(-70 + maxDepolarization * Math.cos(progress * Math.PI / 2));
+                    } else {
+                        voltages.push(-70);
+                    }
+                }
+            }
+            
+            // Draw trace
+            ctx.strokeStyle = reachedThreshold ? '#e53e3e' : '#ed8936';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let i = 0; i < timePoints.length; i++) {
+                const x = 50 + (timePoints[i] / 5) * (width - 70);
+                const y = height - 40 - ((voltages[i] + 90) / 140) * (height - 60);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Draw voltage labels
+            ctx.fillStyle = '#4a5568';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'right';
+            
+            const yTicks = [-90, -70, -55, -30, 0, 30];
+            yTicks.forEach(tick => {
+                const y = height - 40 - ((tick + 90) / 140) * (height - 60);
+                ctx.fillText(tick + '', 45, y + 4);
+            });
+        }
+
+        function updateHistory() {
+            const historyList = document.getElementById('historyList');
+            
+            if (trialHistory.length === 0) {
+                historyList.innerHTML = '<p style="color: #718096; text-align: center;">No trials yet. Inject current to begin!</p>';
+                return;
+            }
+            
+            let html = '';
+            trialHistory.forEach(trial => {
+                const entryClass = trial.success ? 'trial-success' : 'trial-failed';
+                const resultClass = trial.success ? 'result-success' : 'result-failed';
+                const resultText = trial.success ? 'AP FIRED!' : 'No AP';
+                
+                html += `
+                    <div class="trial-entry ${entryClass}">
+                        <div class="trial-number">#${trial.number}</div>
+                        <div class="trial-stimulus">${trial.stimulus} pA</div>
+                        <div class="trial-result ${resultClass}">${resultText}</div>
+                    </div>
+                `;
+            });
+            
+            historyList.innerHTML = html;
+        }
+
+        function updateStats() {
+            const total = trialHistory.length;
+            const success = trialHistory.filter(t => t.success).length;
+            const fail = total - success;
+            
+            document.getElementById('totalTrials').textContent = total;
+            document.getElementById('successCount').textContent = success;
+            document.getElementById('failCount').textContent = fail;
+        }
+
+        function updateExplanation(stimulus, reachedThreshold) {
+            const panel = document.getElementById('explanationText');
+            
+            let text = '';
+            
+            if (stimulus < THRESHOLD * 0.3) {
+                text = `<strong>No Response (${stimulus} pA):</strong> This stimulus is too weak to produce any noticeable change in membrane potential. The neuron stays at rest (-70 mV). The stimulus needs to be stronger to have any effect.`;
+            } else if (stimulus < THRESHOLD) {
+                const percent = Math.round((stimulus / THRESHOLD) * 100);
+                text = `<strong>Graded Potential (${stimulus} pA, ${percent}% of threshold):</strong> The membrane depolarized slightly but did NOT reach threshold (-55 mV). This produces a <em>graded potential</em> - a small, local change that decays over distance and time. The response is proportional to the stimulus strength. No action potential was triggered because voltage-gated Na<sup>+</sup> channels require threshold voltage to open.`;
+            } else if (stimulus === THRESHOLD) {
+                text = `<strong>At Threshold (${stimulus} pA):</strong> You've reached the EXACT threshold! This is the minimum stimulus needed to trigger an action potential. The membrane reached -55 mV, voltage-gated Na<sup>+</sup> channels opened, and a full action potential occurred. Notice the AP has a fixed size and shape.`;
+            } else {
+                const percent = Math.round((stimulus / THRESHOLD) * 100);
+                text = `<strong>Suprathreshold (${stimulus} pA, ${percent}% of threshold):</strong> This stimulus is ABOVE threshold, so an action potential fired. But notice something important: the AP is <em>exactly the same</em> as when you were at threshold! This demonstrates the <strong>all-or-none law</strong>. Once threshold is reached, the AP is always the same amplitude (+40 mV peak) and duration (~3 ms), regardless of how much stronger the stimulus is. A stronger stimulus doesn't make a bigger or faster action potential!`;
+            }
+            
+            panel.innerHTML = text;
+        }
+
+        function clearHistory() {
+            trialHistory = [];
+            trialNumber = 0;
+            updateHistory();
+            updateStats();
+            
+            // Clear canvas
+            const canvas = document.getElementById('traceCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Reset response type
+            const responseType = document.getElementById('responseType');
+            responseType.className = 'response-type response-none';
+            responseType.textContent = 'Ready to Test';
+            
+            // Reset explanation
+            document.getElementById('explanationText').innerHTML = 'Adjust the stimulus strength slider and click "Inject Current" to test whether the neuron will fire an action potential. The threshold is set at 100 pA (which would bring the membrane to -55 mV). Watch what happens with stimuli above and below threshold!';
+        }
+    </script>
+</body>
+</html>

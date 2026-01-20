@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voltage-Gated Ion Channel Simulator | Action Potential Module</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .learning-objectives {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .learning-objectives h2 {
+            color: #2c5282;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .learning-objectives ul {
+            list-style-position: inside;
+            color: #2d3748;
+            line-height: 1.8;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .control-panel {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .control-panel h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .voltage-control {
+            margin-bottom: 30px;
+        }
+
+        .voltage-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .voltage-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2d3748;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid #cbd5e0;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .voltage-slider {
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(to right, #f56565, #ed8936, #ecc94b, #48bb78, #4299e1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .voltage-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .voltage-slider::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .quick-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-resting { background: #4299e1; }
+        .btn-threshold { background: #ed8936; }
+        .btn-peak { background: #48bb78; }
+        .btn-hyperpolarized { background: #9f7aea; }
+
+        .channel-visualization {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .channel-container {
+            margin-bottom: 30px;
+        }
+
+        .channel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .channel-title {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .na-channel { color: #e53e3e; }
+        .k-channel { color: #3182ce; }
+
+        .channel-state {
+            font-size: 1em;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .state-closed {
+            background: #feb2b2;
+            color: #742a2a;
+        }
+
+        .state-open {
+            background: #9ae6b4;
+            color: #22543d;
+        }
+
+        .state-inactivated {
+            background: #fbd38d;
+            color: #744210;
+        }
+
+        .channel-diagram {
+            position: relative;
+            height: 200px;
+            background: #edf2f7;
+            border-radius: 12px;
+            border: 3px solid #cbd5e0;
+            overflow: hidden;
+        }
+
+        .membrane {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(to bottom, #fbd38d 0%, #f6ad55 50%, #ed8936 100%);
+            border-top: 3px solid #c05621;
+            border-bottom: 3px solid #c05621;
+        }
+
+        .channel-protein {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            transition: all 0.4s ease;
+        }
+
+        .channel-segment {
+            background: #4a5568;
+            border: 2px solid #2d3748;
+            border-radius: 8px;
+            transition: all 0.4s ease;
+        }
+
+        .na-gate {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin-bottom: 5px;
+        }
+
+        .na-segment {
+            height: 60px;
+        }
+
+        .na-inactivation {
+            width: 60px;
+            height: 15px;
+            margin: 0 auto;
+            background: #e53e3e;
+            border-radius: 20px;
+            position: relative;
+            top: -5px;
+            transition: all 0.4s ease;
+        }
+
+        .k-gate {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .k-segment {
+            height: 70px;
+        }
+
+        .ion-flow {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            animation: float 2s infinite;
+        }
+
+        .na-ion {
+            background: #fc8181;
+            color: #742a2a;
+            border: 2px solid #e53e3e;
+        }
+
+        .k-ion {
+            background: #90cdf4;
+            color: #2c5282;
+            border: 2px solid #3182ce;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .extracellular-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-weight: 600;
+            color: #4a5568;
+            background: rgba(255,255,255,0.8);
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        .intracellular-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-weight: 600;
+            color: #4a5568;
+            background: rgba(255,255,255,0.8);
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        .graph-container {
+            margin-top: 30px;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .graph-container h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            background: #f7fafc;
+        }
+
+        .info-panel {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+
+        .info-panel h3 {
+            color: #7c2d12;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .info-panel p {
+            color: #2d3748;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 2px solid #2d3748;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Voltage-Gated Ion Channel Simulator</h1>
+        <p class="subtitle">Interactive exploration of Na<sup>+</sup> and K<sup>+</sup> channel behavior during action potentials</p>
+
+        <div class="learning-objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Understand how voltage-gated Na<sup>+</sup> and K<sup>+</sup> channels respond to changes in membrane potential</li>
+                <li>Identify the three conformational states of voltage-gated channels (closed, open, inactivated)</li>
+                <li>Explain the temporal sequence of channel states during an action potential</li>
+                <li>Connect channel behavior to the shape and properties of the action potential waveform</li>
+                <li>Predict ion flow direction based on channel state and electrochemical gradients</li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="control-panel">
+                <h2>🎛️ Membrane Potential Control</h2>
+                
+                <div class="voltage-control">
+                    <div class="voltage-display">
+                        <span style="font-weight: 600; color: #4a5568;">Membrane Potential:</span>
+                        <div class="voltage-value" id="voltageDisplay">-70 mV</div>
+                    </div>
+                    <input type="range" min="-90" max="50" value="-70" class="voltage-slider" id="voltageSlider">
+                    <div style="display: flex; justify-content: space-between; color: #718096; font-size: 0.9em; margin-top: 8px;">
+                        <span>-90 mV</span>
+                        <span>+50 mV</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+                    <h3 style="color: #2d3748; margin-bottom: 15px; font-size: 1.1em;">Quick Jump to Key Voltages:</h3>
+                    <div class="quick-buttons">
+                        <button class="quick-btn btn-resting" onclick="setVoltage(-70)">Resting<br>-70 mV</button>
+                        <button class="quick-btn btn-threshold" onclick="setVoltage(-55)">Threshold<br>-55 mV</button>
+                        <button class="quick-btn btn-peak" onclick="setVoltage(40)">Peak<br>+40 mV</button>
+                        <button class="quick-btn btn-hyperpolarized" onclick="setVoltage(-85)">Hyperpolarized<br>-85 mV</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="channel-visualization">
+                <h2 style="text-align: center; color: #2d3748; margin-bottom: 25px;">Channel States</h2>
+                
+                <!-- Sodium Channel -->
+                <div class="channel-container">
+                    <div class="channel-header">
+                        <div class="channel-title na-channel">Na<sup>+</sup> Channel</div>
+                        <div class="channel-state" id="naState">Closed</div>
+                    </div>
+                    <div class="channel-diagram" id="naDiagram">
+                        <div class="extracellular-label">Extracellular</div>
+                        <div class="membrane"></div>
+                        <div class="intracellular-label">Intracellular</div>
+                        <div class="channel-protein" id="naProtein">
+                            <div class="na-gate" id="naGate">
+                                <div class="channel-segment na-segment"></div>
+                                <div class="channel-segment na-segment"></div>
+                                <div class="channel-segment na-segment"></div>
+                                <div class="channel-segment na-segment"></div>
+                            </div>
+                            <div class="na-inactivation" id="naInactivation"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Potassium Channel -->
+                <div class="channel-container">
+                    <div class="channel-header">
+                        <div class="channel-title k-channel">K<sup>+</sup> Channel</div>
+                        <div class="channel-state" id="kState">Closed</div>
+                    </div>
+                    <div class="channel-diagram" id="kDiagram">
+                        <div class="extracellular-label">Extracellular</div>
+                        <div class="membrane"></div>
+                        <div class="intracellular-label">Intracellular</div>
+                        <div class="channel-protein" id="kProtein">
+                            <div class="k-gate" id="kGate">
+                                <div class="channel-segment k-segment"></div>
+                                <div class="channel-segment k-segment"></div>
+                                <div class="channel-segment k-segment"></div>
+                                <div class="channel-segment k-segment"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="graph-container">
+            <h2>📈 Action Potential Waveform with Channel States</h2>
+            <canvas id="apGraph" width="1200" height="400"></canvas>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #2d3748;"></div>
+                    <span>Membrane Potential</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #e53e3e;"></div>
+                    <span>Na<sup>+</sup> Conductance</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #3182ce;"></div>
+                    <span>K<sup>+</sup> Conductance</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel" id="infoPanel">
+            <h3>💡 What's Happening Now?</h3>
+            <p id="infoText">Move the voltage slider to explore how Na<sup>+</sup> and K<sup>+</sup> channels respond to different membrane potentials.</p>
+        </div>
+    </div>
+
+    <script>
+        const voltageSlider = document.getElementById('voltageSlider');
+        const voltageDisplay = document.getElementById('voltageDisplay');
+        const naState = document.getElementById('naState');
+        const kState = document.getElementById('kState');
+        const infoText = document.getElementById('infoPanel').querySelector('p');
+        
+        // Ion flow elements
+        let naIons = [];
+        let kIons = [];
+
+        voltageSlider.addEventListener('input', function() {
+            const voltage = parseInt(this.value);
+            updateDisplay(voltage);
+        });
+
+        function setVoltage(voltage) {
+            voltageSlider.value = voltage;
+            updateDisplay(voltage);
+        }
+
+        function updateDisplay(voltage) {
+            voltageDisplay.textContent = voltage + ' mV';
+            updateChannelStates(voltage);
+            updateChannelVisuals(voltage);
+            updateInfoText(voltage);
+            drawGraph(voltage);
+            manageIonFlow(voltage);
+        }
+
+        function updateChannelStates(voltage) {
+            // Sodium channel logic
+            if (voltage < -55) {
+                naState.textContent = 'CLOSED';
+                naState.className = 'channel-state state-closed';
+            } else if (voltage >= -55 && voltage < 10) {
+                naState.textContent = 'OPEN';
+                naState.className = 'channel-state state-open';
+            } else {
+                naState.textContent = 'INACTIVATED';
+                naState.className = 'channel-state state-inactivated';
+            }
+
+            // Potassium channel logic (delayed opening)
+            if (voltage < -40) {
+                kState.textContent = 'CLOSED';
+                kState.className = 'channel-state state-closed';
+            } else {
+                kState.textContent = 'OPEN';
+                kState.className = 'channel-state state-open';
+            }
+        }
+
+        function updateChannelVisuals(voltage) {
+            const naGate = document.getElementById('naGate');
+            const naInactivation = document.getElementById('naInactivation');
+            const kGate = document.getElementById('kGate');
+
+            // Sodium channel visualization
+            if (voltage < -55) {
+                // Closed state - gates together
+                naGate.style.gap = '4px';
+                naInactivation.style.top = '-5px';
+                naInactivation.style.opacity = '0.3';
+            } else if (voltage >= -55 && voltage < 10) {
+                // Open state - gates apart, inactivation ball away
+                naGate.style.gap = '15px';
+                naInactivation.style.top = '-25px';
+                naInactivation.style.opacity = '0.3';
+            } else {
+                // Inactivated state - gates apart, inactivation ball plugs pore
+                naGate.style.gap = '15px';
+                naInactivation.style.top = '15px';
+                naInactivation.style.opacity = '1';
+            }
+
+            // Potassium channel visualization
+            if (voltage < -40) {
+                // Closed state
+                kGate.style.gap = '4px';
+            } else {
+                // Open state
+                kGate.style.gap = '15px';
+            }
+        }
+
+        function manageIonFlow(voltage) {
+            const naDiagram = document.getElementById('naDiagram');
+            const kDiagram = document.getElementById('kDiagram');
+            
+            // Clear existing ions
+            naIons.forEach(ion => ion.remove());
+            kIons.forEach(ion => ion.remove());
+            naIons = [];
+            kIons = [];
+
+            // Add Na+ ions when channel is open
+            if (voltage >= -55 && voltage < 10) {
+                for (let i = 0; i < 3; i++) {
+                    const ion = document.createElement('div');
+                    ion.className = 'ion-flow na-ion';
+                    ion.textContent = 'Na+';
+                    ion.style.left = '50%';
+                    ion.style.top = (20 + i * 30) + '%';
+                    ion.style.animationDelay = (i * 0.3) + 's';
+                    naDiagram.appendChild(ion);
+                    naIons.push(ion);
+                }
+            }
+
+            // Add K+ ions when channel is open
+            if (voltage >= -40) {
+                for (let i = 0; i < 3; i++) {
+                    const ion = document.createElement('div');
+                    ion.className = 'ion-flow k-ion';
+                    ion.textContent = 'K+';
+                    ion.style.left = '50%';
+                    ion.style.bottom = (20 + i * 30) + '%';
+                    ion.style.animationDelay = (i * 0.3) + 's';
+                    kDiagram.appendChild(ion);
+                    kIons.push(ion);
+                }
+            }
+        }
+
+        function updateInfoText(voltage) {
+            let text = '';
+            
+            if (voltage < -80) {
+                text = '<strong>Hyperpolarized State:</strong> The membrane is more negative than resting potential. Both Na<sup>+</sup> and K<sup>+</sup> channels are closed. The neuron is less excitable during this period.';
+            } else if (voltage >= -80 && voltage < -55) {
+                text = '<strong>Resting/Subthreshold:</strong> Both channel types are closed. The membrane potential is maintained by leak channels and the Na<sup>+</sup>/K<sup>+</sup> pump (not shown). Voltage-gated channels are ready to respond to depolarization.';
+            } else if (voltage >= -55 && voltage < -40) {
+                text = '<strong>Rising Phase Begins:</strong> Na<sup>+</sup> channels have opened! Positive Na<sup>+</sup> ions rush INTO the cell down their electrochemical gradient, causing rapid depolarization. K<sup>+</sup> channels are still closed but beginning to respond.';
+            } else if (voltage >= -40 && voltage < 10) {
+                text = '<strong>Peak Approaches:</strong> Na<sup>+</sup> channels are fully open, driving the membrane toward the Na<sup>+</sup> equilibrium potential (+60 mV). K<sup>+</sup> channels are now opening (delayed activation), which will oppose further depolarization.';
+            } else if (voltage >= 10 && voltage < 30) {
+                text = '<strong>Repolarization Begins:</strong> Na<sup>+</sup> channels are starting to inactivate (inactivation gate closes the pore). K<sup>+</sup> channels are fully open, allowing K<sup>+</sup> to flow OUT of the cell, bringing the membrane potential back down.';
+            } else {
+                text = '<strong>Peak/Inactivation:</strong> Na<sup>+</sup> channels are INACTIVATED - they cannot reopen until the membrane returns to negative potentials. K<sup>+</sup> channels are wide open, rapidly repolarizing the membrane. This is why the action potential has a brief, fixed duration.';
+            }
+            
+            document.getElementById('infoText').innerHTML = text;
+        }
+
+        function drawGraph(currentVoltage) {
+            const canvas = document.getElementById('apGraph');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Define time points (ms) and corresponding voltages
+            const timePoints = [];
+            const voltages = [];
+            const naConductance = [];
+            const kConductance = [];
+            
+            // Generate action potential data
+            for (let t = 0; t <= 5; t += 0.1) {
+                timePoints.push(t);
+                
+                if (t < 1) {
+                    // Resting
+                    voltages.push(-70);
+                    naConductance.push(0);
+                    kConductance.push(0);
+                } else if (t < 1.5) {
+                    // Rising phase
+                    const progress = (t - 1) / 0.5;
+                    voltages.push(-70 + 110 * progress);
+                    naConductance.push(100 * Math.sin(progress * Math.PI / 2));
+                    kConductance.push(0);
+                } else if (t < 2.5) {
+                    // Falling phase
+                    const progress = (t - 1.5) / 1;
+                    voltages.push(40 - 120 * progress);
+                    naConductance.push(100 * (1 - progress));
+                    kConductance.push(100 * progress);
+                } else if (t < 3.5) {
+                    // Hyperpolarization
+                    const progress = (t - 2.5) / 1;
+                    voltages.push(-80 + 10 * progress);
+                    naConductance.push(0);
+                    kConductance.push(100 * (1 - progress));
+                } else {
+                    // Return to resting
+                    voltages.push(-70);
+                    naConductance.push(0);
+                    kConductance.push(0);
+                }
+            }
+            
+            // Draw axes
+            ctx.strokeStyle = '#2d3748';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(50, height - 50);
+            ctx.lineTo(width - 50, height - 50);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(50, 50);
+            ctx.lineTo(50, height - 50);
+            ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#2d3748';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('Time (ms)', width / 2 - 30, height - 10);
+            ctx.save();
+            ctx.translate(15, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Membrane Potential (mV)', 0, 0);
+            ctx.restore();
+            
+            // Y-axis tick marks and labels
+            const yTicks = [-90, -60, -30, 0, 30];
+            yTicks.forEach(tick => {
+                const y = height - 50 - ((tick + 90) / 140) * (height - 100);
+                ctx.strokeStyle = '#cbd5e0';
+                ctx.beginPath();
+                ctx.moveTo(50, y);
+                ctx.lineTo(width - 50, y);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#4a5568';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(tick + '', 45, y + 4);
+            });
+            
+            // X-axis tick marks
+            for (let t = 0; t <= 5; t++) {
+                const x = 50 + (t / 5) * (width - 100);
+                ctx.fillStyle = '#4a5568';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(t + '', x, height - 35);
+            }
+            
+            // Helper function to convert values to canvas coordinates
+            function toCanvasY(voltage) {
+                return height - 50 - ((voltage + 90) / 140) * (height - 100);
+            }
+            
+            function toCanvasX(time) {
+                return 50 + (time / 5) * (width - 100);
+            }
+            
+            // Draw voltage trace
+            ctx.strokeStyle = '#2d3748';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (let i = 0; i < timePoints.length; i++) {
+                const x = toCanvasX(timePoints[i]);
+                const y = toCanvasY(voltages[i]);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Draw Na+ conductance
+            ctx.strokeStyle = '#e53e3e';
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.7;
+            ctx.beginPath();
+            for (let i = 0; i < timePoints.length; i++) {
+                const x = toCanvasX(timePoints[i]);
+                const y = toCanvasY(-90 + naConductance[i] * 0.5);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Draw K+ conductance
+            ctx.strokeStyle = '#3182ce';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let i = 0; i < timePoints.length; i++) {
+                const x = toCanvasX(timePoints[i]);
+                const y = toCanvasY(-90 + kConductance[i] * 0.5);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.globalAlpha = 1.0;
+            
+            // Draw current position marker
+            const currentY = toCanvasY(currentVoltage);
+            ctx.strokeStyle = '#9f7aea';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(50, currentY);
+            ctx.lineTo(width - 50, currentY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw marker circle
+            ctx.fillStyle = '#9f7aea';
+            ctx.beginPath();
+            ctx.arc(width - 50, currentY, 8, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        // Initialize
+        updateDisplay(-70);
+    </script>
+</body>
+</html>

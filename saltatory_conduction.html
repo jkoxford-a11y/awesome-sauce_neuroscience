@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saltatory Conduction | Neuroscience Module</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .learning-objectives {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .learning-objectives h2 {
+            color: #2c5282;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .learning-objectives ul {
+            list-style-position: inside;
+            color: #2d3748;
+            line-height: 1.8;
+        }
+
+        .control-panel {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 30px;
+        }
+
+        .control-panel h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .race-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .race-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .race-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .race-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-start { background: linear-gradient(135deg, #48bb78, #38a169); }
+        .btn-pause { background: linear-gradient(135deg, #ed8936, #dd6b20); }
+        .btn-reset { background: linear-gradient(135deg, #4299e1, #3182ce); }
+
+        .speed-control {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .speed-control label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .speed-slider {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #cbd5e0, #48bb78);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .speed-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .axon-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .axon-label {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .unmyelinated-label { color: #e53e3e; }
+        .myelinated-label { color: #3182ce; }
+
+        .axon-track {
+            position: relative;
+            height: 100px;
+            background: #edf2f7;
+            border-radius: 12px;
+            border: 2px solid #cbd5e0;
+            overflow: hidden;
+        }
+
+        .axon-membrane {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(to bottom, #f6ad55, #ed8936);
+            border-top: 2px solid #c05621;
+            border-bottom: 2px solid #c05621;
+        }
+
+        .myelin-segment {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 60px;
+            background: linear-gradient(135deg, #90cdf4, #4299e1);
+            border: 3px solid #2c5282;
+            border-radius: 8px;
+        }
+
+        .node-ranvier {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 50px;
+            background: #2d3748;
+        }
+
+        .ap-wave {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #ffd700, #ff6b6b);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.8);
+            transition: left 0.05s linear;
+            z-index: 10;
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 10px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: repeating-linear-gradient(
+                45deg,
+                #2d3748,
+                #2d3748 10px,
+                white 10px,
+                white 20px
+            );
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        .winner-banner {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .comparison-table {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 30px;
+        }
+
+        .comparison-table h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .unmyelinated-row {
+            background: #fff5f5;
+        }
+
+        .myelinated-row {
+            background: #ebf8ff;
+        }
+
+        .explanation-panel {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .explanation-panel h3 {
+            color: #7c2d12;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .explanation-panel p {
+            color: #2d3748;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .clinical-note {
+            background: #fef5f5;
+            border-left: 4px solid #fc8181;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .clinical-note h4 {
+            color: #c53030;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .clinical-note p {
+            color: #2d3748;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 1024px) {
+            .stats-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .race-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏁 Saltatory Conduction</h1>
+        <p class="subtitle">Racing action potentials: Unmyelinated vs Myelinated axons</p>
+
+        <div class="learning-objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Compare continuous conduction in unmyelinated axons to saltatory conduction in myelinated axons</li>
+                <li>Explain how myelin sheaths increase conduction velocity</li>
+                <li>Describe the role of nodes of Ranvier in action potential propagation</li>
+                <li>Understand why saltatory conduction conserves cellular energy</li>
+                <li>Relate myelin structure to neurological diseases like multiple sclerosis</li>
+            </ul>
+        </div>
+
+        <div class="control-panel">
+            <h2>🎮 Race Controls</h2>
+            
+            <div class="race-controls">
+                <button class="race-btn btn-start" onclick="startRace()" id="startBtn">
+                    ▶️ START RACE
+                </button>
+                <button class="race-btn btn-pause" onclick="pauseRace()" id="pauseBtn" disabled>
+                    ⏸️ PAUSE
+                </button>
+                <button class="race-btn btn-reset" onclick="resetRace()" id="resetBtn">
+                    🔄 RESET
+                </button>
+            </div>
+
+            <div class="speed-control">
+                <label for="speedSlider">Animation Speed: <span id="speedDisplay">1.0x</span></label>
+                <input type="range" min="0.5" max="3" step="0.5" value="1" class="speed-slider" id="speedSlider">
+            </div>
+        </div>
+
+        <div class="winner-banner" id="winnerBanner">
+            🏆 MYELINATED AXON WINS! 🏆
+        </div>
+
+        <div class="stats-panel">
+            <div class="stat-box">
+                <div class="stat-value" id="unmyelinatedTime">0.0</div>
+                <div class="stat-label">Unmyelinated Time (ms)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="myelinatedTime">0.0</div>
+                <div class="stat-label">Myelinated Time (ms)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="speedRatio">0x</div>
+                <div class="stat-label">Speed Advantage</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="energySaved">0%</div>
+                <div class="stat-label">Energy Saved</div>
+            </div>
+        </div>
+
+        <!-- Unmyelinated Axon -->
+        <div class="axon-container">
+            <div class="axon-label unmyelinated-label">
+                <span>🔴 Unmyelinated Axon (Continuous Conduction)</span>
+                <span style="font-size: 0.9em;">~1 m/s</span>
+            </div>
+            <div class="axon-track" id="unmyelinatedTrack">
+                <div class="axon-membrane"></div>
+                <div class="finish-line"></div>
+                <div class="ap-wave" id="unmyelinatedWave" style="left: 0px; display: none;"></div>
+            </div>
+            <p style="color: #718096; margin-top: 10px; font-size: 0.9em;">
+                AP regenerated at EVERY point along the membrane - slow but reliable
+            </p>
+        </div>
+
+        <!-- Myelinated Axon -->
+        <div class="axon-container">
+            <div class="axon-label myelinated-label">
+                <span>🔵 Myelinated Axon (Saltatory Conduction)</span>
+                <span style="font-size: 0.9em;">~100 m/s</span>
+            </div>
+            <div class="axon-track" id="myelinatedTrack">
+                <div class="axon-membrane"></div>
+                
+                <!-- Myelin segments -->
+                <div class="myelin-segment" style="left: 5%; width: 18%;"></div>
+                <div class="myelin-segment" style="left: 28%; width: 18%;"></div>
+                <div class="myelin-segment" style="left: 51%; width: 18%;"></div>
+                <div class="myelin-segment" style="left: 74%; width: 18%;"></div>
+                
+                <!-- Nodes of Ranvier -->
+                <div class="node-ranvier" style="left: 23%;"></div>
+                <div class="node-ranvier" style="left: 46%;"></div>
+                <div class="node-ranvier" style="left: 69%;"></div>
+                <div class="node-ranvier" style="left: 92%;"></div>
+                
+                <div class="finish-line"></div>
+                <div class="ap-wave" id="myelinatedWave" style="left: 0px; display: none;"></div>
+            </div>
+            <p style="color: #718096; margin-top: 10px; font-size: 0.9em;">
+                AP "jumps" from node to node - much faster and more energy efficient!
+            </p>
+        </div>
+
+        <div class="comparison-table">
+            <h3>📊 Detailed Comparison</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Unmyelinated Axon</th>
+                        <th>Myelinated Axon</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="unmyelinated-row">
+                        <td><strong>Conduction Type</strong></td>
+                        <td>Continuous propagation</td>
+                        <td>Saltatory (jumping) conduction</td>
+                    </tr>
+                    <tr class="myelinated-row">
+                        <td><strong>Speed</strong></td>
+                        <td>0.5 - 2 m/s</td>
+                        <td>3 - 120 m/s (up to 100x faster!)</td>
+                    </tr>
+                    <tr class="unmyelinated-row">
+                        <td><strong>Where AP Occurs</strong></td>
+                        <td>Every point along membrane</td>
+                        <td>Only at nodes of Ranvier</td>
+                    </tr>
+                    <tr class="myelinated-row">
+                        <td><strong>Na<sup>+</sup> Channels</strong></td>
+                        <td>Distributed along entire axon</td>
+                        <td>Concentrated at nodes only</td>
+                    </tr>
+                    <tr class="unmyelinated-row">
+                        <td><strong>Energy Cost</strong></td>
+                        <td>High - Na/K pump works everywhere</td>
+                        <td>Low - pump only needed at nodes (~90% savings!)</td>
+                    </tr>
+                    <tr class="myelinated-row">
+                        <td><strong>Mechanism</strong></td>
+                        <td>Local current depolarizes adjacent membrane</td>
+                        <td>Current jumps under myelin to next node</td>
+                    </tr>
+                    <tr class="unmyelinated-row">
+                        <td><strong>Found In</strong></td>
+                        <td>C fibers (pain, temperature)</td>
+                        <td>A fibers (proprioception, motor)</td>
+                    </tr>
+                    <tr class="myelinated-row">
+                        <td><strong>Diameter</strong></td>
+                        <td>Small (0.2-1.5 μm)</td>
+                        <td>Large (1-20 μm)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="explanation-panel">
+            <h3>💡 How Saltatory Conduction Works</h3>
+            <p>
+                In <strong>unmyelinated axons</strong>, the action potential must be regenerated at every single point along the membrane. The Na<sup>+</sup> rushing in at one location creates a local current that depolarizes the adjacent membrane to threshold, opening its voltage-gated Na<sup>+</sup> channels, which then depolarizes the next section, and so on. This is like a line of dominoes falling - reliable but slow.
+            </p>
+            <p>
+                In <strong>myelinated axons</strong>, the myelin sheath (made of wrapped glial cell membranes - oligodendrocytes in CNS, Schwann cells in PNS) acts as an electrical insulator. Ions can't cross the membrane where it's covered with myelin. Instead, the local current from an action potential at one node of Ranvier "jumps" under the myelin to the next node, where voltage-gated Na<sup>+</sup> channels are concentrated. The AP literally jumps from node to node - this is <strong>saltatory conduction</strong> (from Latin "saltare" = to jump).
+            </p>
+            <p>
+                This provides TWO major advantages: (1) <strong>Speed</strong> - jumping is much faster than regenerating the AP at every point, and (2) <strong>Energy efficiency</strong> - the Na<sup>+</sup>/K<sup>+</sup> pump only needs to restore gradients at the nodes (~1% of the axon surface), saving ~90% of the energy cost!
+            </p>
+        </div>
+
+        <div class="clinical-note">
+            <h4>🏥 Clinical Connection: Multiple Sclerosis</h4>
+            <p>
+                <strong>Multiple sclerosis (MS)</strong> is an autoimmune disease where the immune system attacks and destroys myelin sheaths in the CNS. As myelin is lost, saltatory conduction fails and signals slow down dramatically or stop altogether. This explains MS symptoms: muscle weakness (motor signals slow), vision problems (optic nerve demyelination), numbness (sensory signals slow), and fatigue (everything requires more energy without myelin efficiency). The disease is called "multiple sclerosis" because it causes multiple areas of scarring (sclerosis) where myelin has been destroyed. Understanding saltatory conduction helps us understand why losing myelin has such devastating effects on nervous system function.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let isRacing = false;
+        let animationFrame;
+        let unmyelinatedPosition = 0;
+        let myelinatedPosition = 0;
+        let startTime;
+        let unmyelinatedFinishTime = null;
+        let myelinatedFinishTime = null;
+        let animationSpeed = 1.0;
+        
+        const RACE_DISTANCE = 1100; // pixels
+        const UNMYELINATED_SPEED = 1.0; // pixels per frame
+        const MYELINATED_SPEED = 5.0; // pixels per frame (5x faster)
+        const NODES = [0, 253, 506, 759, 1012]; // Node positions for myelinated
+        
+        const speedSlider = document.getElementById('speedSlider');
+        speedSlider.addEventListener('input', function() {
+            animationSpeed = parseFloat(this.value);
+            document.getElementById('speedDisplay').textContent = animationSpeed.toFixed(1) + 'x';
+        });
+
+        function startRace() {
+            if (unmyelinatedFinishTime !== null || myelinatedFinishTime !== null) {
+                resetRace();
+            }
+            
+            isRacing = true;
+            startTime = Date.now();
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('unmyelinatedWave').style.display = 'block';
+            document.getElementById('myelinatedWave').style.display = 'block';
+            
+            animate();
+        }
+
+        function pauseRace() {
+            isRacing = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            cancelAnimationFrame(animationFrame);
+        }
+
+        function resetRace() {
+            isRacing = false;
+            cancelAnimationFrame(animationFrame);
+            
+            unmyelinatedPosition = 0;
+            myelinatedPosition = 0;
+            unmyelinatedFinishTime = null;
+            myelinatedFinishTime = null;
+            
+            document.getElementById('unmyelinatedWave').style.left = '0px';
+            document.getElementById('myelinatedWave').style.left = '0px';
+            document.getElementById('unmyelinatedWave').style.display = 'none';
+            document.getElementById('myelinatedWave').style.display = 'none';
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            
+            document.getElementById('unmyelinatedTime').textContent = '0.0';
+            document.getElementById('myelinatedTime').textContent = '0.0';
+            document.getElementById('speedRatio').textContent = '0x';
+            document.getElementById('energySaved').textContent = '0%';
+            document.getElementById('winnerBanner').style.display = 'none';
+        }
+
+        function animate() {
+            if (!isRacing) return;
+            
+            const elapsed = (Date.now() - startTime) / 1000; // seconds
+            
+            // Update unmyelinated position
+            if (unmyelinatedFinishTime === null) {
+                unmyelinatedPosition += UNMYELINATED_SPEED * animationSpeed;
+                document.getElementById('unmyelinatedWave').style.left = unmyelinatedPosition + 'px';
+                
+                if (unmyelinatedPosition >= RACE_DISTANCE) {
+                    unmyelinatedFinishTime = elapsed;
+                    document.getElementById('unmyelinatedTime').textContent = unmyelinatedFinishTime.toFixed(2);
+                }
+            }
+            
+            // Update myelinated position (jumps between nodes)
+            if (myelinatedFinishTime === null) {
+                myelinatedPosition += MYELINATED_SPEED * animationSpeed;
+                
+                // Snap to nearest node for visual effect
+                let displayPosition = myelinatedPosition;
+                for (let i = 0; i < NODES.length - 1; i++) {
+                    if (myelinatedPosition >= NODES[i] && myelinatedPosition < NODES[i + 1]) {
+                        // Interpolate between nodes
+                        const progress = (myelinatedPosition - NODES[i]) / (NODES[i + 1] - NODES[i]);
+                        if (progress < 0.3) {
+                            displayPosition = NODES[i];
+                        } else if (progress > 0.7) {
+                            displayPosition = NODES[i + 1];
+                        } else {
+                            // Jumping phase
+                            displayPosition = NODES[i] + (NODES[i + 1] - NODES[i]) * 0.5;
+                        }
+                        break;
+                    }
+                }
+                
+                document.getElementById('myelinatedWave').style.left = displayPosition + 'px';
+                
+                if (myelinatedPosition >= RACE_DISTANCE) {
+                    myelinatedFinishTime = elapsed;
+                    document.getElementById('myelinatedTime').textContent = myelinatedFinishTime.toFixed(2);
+                    document.getElementById('winnerBanner').style.display = 'block';
+                }
+            }
+            
+            // Update stats
+            if (unmyelinatedFinishTime !== null && myelinatedFinishTime !== null) {
+                const ratio = unmyelinatedFinishTime / myelinatedFinishTime;
+                document.getElementById('speedRatio').textContent = ratio.toFixed(1) + 'x';
+                document.getElementById('energySaved').textContent = '90%';
+                
+                isRacing = false;
+                document.getElementById('pauseBtn').disabled = true;
+                return;
+            }
+            
+            animationFrame = requestAnimationFrame(animate);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refractory Periods | Neuroscience Module</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .learning-objectives {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .learning-objectives h2 {
+            color: #2c5282;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .learning-objectives ul {
+            list-style-position: inside;
+            color: #2d3748;
+            line-height: 1.8;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .control-panel {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .control-panel h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .timing-control {
+            margin-bottom: 25px;
+        }
+
+        .timing-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .timing-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2d3748;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid #cbd5e0;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .timing-slider {
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .timing-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .timing-slider::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .period-indicators {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .period-box {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .absolute-period {
+            background: #fff5f5;
+            border: 2px solid #fc8181;
+        }
+
+        .relative-period {
+            background: #fffaf0;
+            border: 2px solid #fbd38d;
+        }
+
+        .period-label {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .period-time {
+            color: #4a5568;
+            font-size: 0.9em;
+        }
+
+        .stimulus-button {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn-first-stimulus {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .btn-second-stimulus {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+        }
+
+        .stimulus-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .stimulus-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .quick-timings {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .timing-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .timing-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-absolute { background: #fc8181; }
+        .btn-relative { background: #f6ad55; }
+        .btn-safe { background: #48bb78; }
+
+        .visualization-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .status-display {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .status-ready {
+            background: #edf2f7;
+            color: #4a5568;
+            border: 2px solid #cbd5e0;
+        }
+
+        .status-refractory {
+            background: #fff5f5;
+            color: #c53030;
+            border: 2px solid #fc8181;
+        }
+
+        .status-success {
+            background: #f0fff4;
+            color: #22543d;
+            border: 2px solid #9ae6b4;
+        }
+
+        .graph-container {
+            position: relative;
+            height: 350px;
+            background: #edf2f7;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #cbd5e0;
+        }
+
+        .timeline {
+            position: absolute;
+            bottom: 60px;
+            left: 50px;
+            right: 20px;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #cbd5e0;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            transition: all 0.3s;
+        }
+
+        .absolute-zone {
+            background: rgba(252, 129, 129, 0.3);
+            border-left: 3px solid #fc8181;
+        }
+
+        .relative-zone {
+            background: rgba(251, 211, 141, 0.3);
+            border-left: 3px solid #f6ad55;
+        }
+
+        .safe-zone {
+            background: rgba(154, 230, 180, 0.3);
+            border-left: 3px solid #9ae6b4;
+        }
+
+        .timeline-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 600;
+            font-size: 0.85em;
+            white-space: nowrap;
+        }
+
+        .stimulus-marker {
+            position: absolute;
+            width: 4px;
+            height: 60px;
+            background: #2d3748;
+            top: -10px;
+            transition: left 0.3s;
+        }
+
+        .marker-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d3748;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .explanation-panel {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+
+        .explanation-panel h3 {
+            color: #7c2d12;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .explanation-panel p {
+            color: #2d3748;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .key-concepts {
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .key-concepts h4 {
+            color: #234e52;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .key-concepts ul {
+            color: #2d3748;
+            line-height: 1.8;
+            margin-left: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Refractory Periods</h1>
+        <p class="subtitle">Why neurons can't fire continuously</p>
+
+        <div class="learning-objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Define absolute and relative refractory periods</li>
+                <li>Explain the molecular basis for each type of refractory period</li>
+                <li>Predict whether a second stimulus can trigger an AP based on timing</li>
+                <li>Understand how refractory periods ensure unidirectional propagation</li>
+                <li>Calculate maximum firing frequency based on refractory period duration</li>
+            </ul>
+        </div>
+
+        <div class="main-grid">
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <h2>⏱️ Stimulus Timing Control</h2>
+                
+                <div class="timing-control">
+                    <div class="timing-display">
+                        <span style="font-weight: 600; color: #4a5568;">Delay Between Stimuli:</span>
+                        <div class="timing-value" id="timingDisplay">3.0 ms</div>
+                    </div>
+                    <input type="range" min="0" max="10" step="0.5" value="3" class="timing-slider" id="timingSlider">
+                    <div style="display: flex; justify-content: space-between; color: #718096; font-size: 0.9em; margin-top: 8px;">
+                        <span>0 ms (immediate)</span>
+                        <span>10 ms (long delay)</span>
+                    </div>
+                </div>
+
+                <div class="period-indicators">
+                    <div class="period-box absolute-period">
+                        <div class="period-label" style="color: #c53030;">Absolute</div>
+                        <div class="period-time">0 - 1 ms</div>
+                        <div style="font-size: 0.85em; margin-top: 5px; color: #742a2a;">Impossible to fire</div>
+                    </div>
+                    <div class="period-box relative-period">
+                        <div class="period-label" style="color: #c05621;">Relative</div>
+                        <div class="period-time">1 - 4 ms</div>
+                        <div style="font-size: 0.85em; margin-top: 5px; color: #7c2d12;">Needs stronger stimulus</div>
+                    </div>
+                </div>
+
+                <button class="stimulus-button btn-first-stimulus" onclick="firstStimulus()" id="firstBtn">
+                    ⚡ FIRE FIRST AP
+                </button>
+
+                <button class="stimulus-button btn-second-stimulus" onclick="secondStimulus()" id="secondBtn" disabled>
+                    ⚡ TRY SECOND AP
+                </button>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+                    <h3 style="color: #2d3748; margin-bottom: 15px; font-size: 1.1em;">Quick Test Timings:</h3>
+                    <div class="quick-timings">
+                        <button class="timing-btn btn-absolute" onclick="setTiming(0.5)">Absolute<br>0.5 ms</button>
+                        <button class="timing-btn btn-relative" onclick="setTiming(2.0)">Relative<br>2.0 ms</button>
+                        <button class="timing-btn btn-safe" onclick="setTiming(5.0)">Safe<br>5.0 ms</button>
+                        <button class="timing-btn btn-safe" onclick="setTiming(10.0)">Long<br>10.0 ms</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Panel -->
+            <div class="visualization-panel">
+                <h2 style="text-align: center; color: #2d3748; margin-bottom: 20px;">Action Potential Response</h2>
+                
+                <div class="status-display status-ready" id="statusDisplay">
+                    Click "Fire First AP" to begin
+                </div>
+
+                <div class="graph-container">
+                    <canvas id="apCanvas" width="1200" height="350"></canvas>
+                    
+                    <!-- Timeline at bottom -->
+                    <div class="timeline">
+                        <!-- Refractory zones -->
+                        <div class="timeline-marker absolute-zone" style="left: 0%; width: 10%;">
+                            <div class="timeline-label" style="color: #c53030; font-size: 0.75em;">Absolute</div>
+                        </div>
+                        <div class="timeline-marker relative-zone" style="left: 10%; width: 30%;">
+                            <div class="timeline-label" style="color: #c05621; font-size: 0.75em;">Relative</div>
+                        </div>
+                        <div class="timeline-marker safe-zone" style="left: 40%; width: 60%;">
+                            <div class="timeline-label" style="color: #22543d; font-size: 0.75em;">Ready to Fire</div>
+                        </div>
+                        
+                        <!-- Stimulus markers -->
+                        <div class="stimulus-marker" id="stimulus1Marker" style="left: 10%; display: none;">
+                            <div class="marker-label">1st</div>
+                        </div>
+                        <div class="stimulus-marker" id="stimulus2Marker" style="left: 50%; display: none;">
+                            <div class="marker-label">2nd</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation-panel" id="explanationPanel">
+            <h3>💡 How It Works</h3>
+            <p id="explanationText">
+                After an action potential fires, the neuron enters a <strong>refractory period</strong> during which it's difficult or impossible to trigger another AP. Set the delay between stimuli, fire the first AP, then try to trigger a second one at your chosen timing. Watch what happens!
+            </p>
+        </div>
+
+        <div class="key-concepts">
+            <h4>🔑 Key Concepts</h4>
+            <ul>
+                <li><strong>Absolute Refractory Period (~1 ms):</strong> Na<sup>+</sup> channels are INACTIVATED. The inactivation gate is closed and won't reopen until the membrane returns to negative voltages. No matter how strong the stimulus, another AP is impossible.</li>
+                
+                <li><strong>Relative Refractory Period (~3-4 ms):</strong> Na<sup>+</sup> channels are recovering from inactivation, but K<sup>+</sup> channels are still open (hyperpolarization). A STRONGER than normal stimulus is needed to overcome the hyperpolarization and reach threshold.</li>
+                
+                <li><strong>Unidirectional Propagation:</strong> Refractory periods ensure APs only travel in one direction along the axon. The region behind the AP is in its refractory period, so the AP can only propagate forward.</li>
+                
+                <li><strong>Maximum Firing Rate:</strong> The absolute refractory period limits how fast a neuron can fire. With a 1 ms absolute refractory period, maximum firing rate is ~1000 Hz (though most neurons fire much slower, 1-100 Hz).</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let firstAPFired = false;
+        let currentDelay = 3.0;
+        const ABSOLUTE_PERIOD = 1.0; // ms
+        const RELATIVE_PERIOD = 4.0; // ms
+        
+        const timingSlider = document.getElementById('timingSlider');
+        const timingDisplay = document.getElementById('timingDisplay');
+        const firstBtn = document.getElementById('firstBtn');
+        const secondBtn = document.getElementById('secondBtn');
+
+        timingSlider.addEventListener('input', function() {
+            currentDelay = parseFloat(this.value);
+            timingDisplay.textContent = currentDelay.toFixed(1) + ' ms';
+            updateTimelineMarker();
+        });
+
+        function setTiming(value) {
+            timingSlider.value = value;
+            currentDelay = value;
+            timingDisplay.textContent = value.toFixed(1) + ' ms';
+            updateTimelineMarker();
+        }
+
+        function updateTimelineMarker() {
+            const marker = document.getElementById('stimulus2Marker');
+            if (firstAPFired) {
+                // Position as percentage of 10ms total
+                const position = 10 + (currentDelay / 10) * 90;
+                marker.style.left = position + '%';
+            }
+        }
+
+        function firstStimulus() {
+            firstAPFired = true;
+            firstBtn.disabled = true;
+            secondBtn.disabled = false;
+            
+            // Show first marker
+            document.getElementById('stimulus1Marker').style.display = 'block';
+            document.getElementById('stimulus2Marker').style.display = 'block';
+            updateTimelineMarker();
+            
+            // Draw first AP
+            drawActionPotentials(true, false, currentDelay);
+            
+            // Update status
+            const status = document.getElementById('statusDisplay');
+            status.className = 'status-display status-refractory';
+            status.textContent = '🔒 Neuron in Refractory Period - Try Second Stimulus';
+            
+            updateExplanation('first');
+        }
+
+        function secondStimulus() {
+            let success = false;
+            let reason = '';
+            
+            if (currentDelay < ABSOLUTE_PERIOD) {
+                success = false;
+                reason = 'absolute';
+            } else if (currentDelay < RELATIVE_PERIOD) {
+                // In relative period - might succeed with strong stimulus
+                // For this simulation, we'll make it succeed at 50% probability
+                // to show it's harder but possible
+                success = Math.random() > 0.3;
+                reason = 'relative';
+            } else {
+                success = true;
+                reason = 'recovered';
+            }
+            
+            // Draw both APs
+            drawActionPotentials(true, success, currentDelay);
+            
+            // Update status
+            const status = document.getElementById('statusDisplay');
+            if (success) {
+                status.className = 'status-display status-success';
+                status.textContent = '✅ Second AP Fired Successfully!';
+            } else {
+                status.className = 'status-display status-refractory';
+                status.textContent = '❌ Second AP Failed - Still Refractory';
+            }
+            
+            // Reset for next trial
+            setTimeout(() => {
+                reset();
+            }, 3000);
+            
+            updateExplanation('second', success, reason);
+        }
+
+        function reset() {
+            firstAPFired = false;
+            firstBtn.disabled = false;
+            secondBtn.disabled = true;
+            
+            document.getElementById('stimulus1Marker').style.display = 'none';
+            document.getElementById('stimulus2Marker').style.display = 'none';
+            
+            const canvas = document.getElementById('apCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const status = document.getElementById('statusDisplay');
+            status.className = 'status-display status-ready';
+            status.textContent = 'Click "Fire First AP" to begin';
+            
+            updateExplanation('reset');
+        }
+
+        function drawActionPotentials(showFirst, showSecond, delay) {
+            const canvas = document.getElementById('apCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw axes
+            ctx.strokeStyle = '#cbd5e0';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(50, 30);
+            ctx.lineTo(50, height - 100);
+            ctx.lineTo(width - 20, height - 100);
+            ctx.stroke();
+            
+            // Draw labels
+            ctx.fillStyle = '#4a5568';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Time (ms)', width / 2, height - 70);
+            
+            ctx.save();
+            ctx.translate(20, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Membrane Potential (mV)', 0, 0);
+            ctx.restore();
+            
+            // Voltage scale
+            const voltages = [-90, -70, -55, 0, 40];
+            ctx.textAlign = 'right';
+            ctx.font = '11px Arial';
+            voltages.forEach(v => {
+                const y = height - 100 - ((v + 90) / 140) * (height - 130);
+                ctx.fillText(v + '', 45, y + 4);
+                
+                // Grid line
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(50, y);
+                ctx.lineTo(width - 20, y);
+                ctx.stroke();
+            });
+            
+            // Time scale (0-10ms)
+            for (let t = 0; t <= 10; t += 2) {
+                const x = 50 + (t / 10) * (width - 70);
+                ctx.fillStyle = '#4a5568';
+                ctx.textAlign = 'center';
+                ctx.fillText(t + '', x, height - 85);
+            }
+            
+            // Helper function
+            function voltageToY(v) {
+                return height - 100 - ((v + 90) / 140) * (height - 130);
+            }
+            
+            function timeToX(t) {
+                return 50 + (t / 10) * (width - 70);
+            }
+            
+            // Draw first AP
+            if (showFirst) {
+                ctx.strokeStyle = '#e53e3e';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                const startTime = 1; // Start first AP at 1ms
+                for (let t = 0; t <= 10; t += 0.1) {
+                    let v;
+                    if (t < startTime) {
+                        v = -70;
+                    } else if (t < startTime + 0.5) {
+                        // Rising
+                        const progress = (t - startTime) / 0.5;
+                        v = -70 + 110 * progress;
+                    } else if (t < startTime + 1.5) {
+                        // Falling
+                        const progress = (t - startTime - 0.5) / 1.0;
+                        v = 40 - 120 * progress;
+                    } else if (t < startTime + 2.5) {
+                        // Hyperpolarization
+                        const progress = (t - startTime - 1.5) / 1.0;
+                        v = -80 + 10 * progress;
+                    } else {
+                        v = -70;
+                    }
+                    
+                    const x = timeToX(t);
+                    const y = voltageToY(v);
+                    
+                    if (t === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+            
+            // Draw second AP if successful
+            if (showSecond) {
+                ctx.strokeStyle = '#3182ce';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                const startTime = 1 + delay; // Second AP starts after delay
+                for (let t = 0; t <= 10; t += 0.1) {
+                    if (t < startTime) continue;
+                    
+                    let v;
+                    if (t < startTime + 0.5) {
+                        // Rising
+                        const progress = (t - startTime) / 0.5;
+                        v = -70 + 110 * progress;
+                    } else if (t < startTime + 1.5) {
+                        // Falling
+                        const progress = (t - startTime - 0.5) / 1.0;
+                        v = 40 - 120 * progress;
+                    } else if (t < startTime + 2.5) {
+                        // Hyperpolarization
+                        const progress = (t - startTime - 1.5) / 1.0;
+                        v = -80 + 10 * progress;
+                    } else {
+                        v = -70;
+                    }
+                    
+                    const x = timeToX(t);
+                    const y = voltageToY(v);
+                    
+                    if (t === startTime) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+            
+            // Draw refractory period shading
+            if (showFirst) {
+                // Absolute refractory period
+                const absStart = timeToX(1);
+                const absEnd = timeToX(1 + ABSOLUTE_PERIOD);
+                ctx.fillStyle = 'rgba(252, 129, 129, 0.2)';
+                ctx.fillRect(absStart, 30, absEnd - absStart, height - 130);
+                
+                // Relative refractory period
+                const relEnd = timeToX(1 + RELATIVE_PERIOD);
+                ctx.fillStyle = 'rgba(251, 211, 141, 0.2)';
+                ctx.fillRect(absEnd, 30, relEnd - absEnd, height - 130);
+            }
+        }
+
+        function updateExplanation(phase, success, reason) {
+            const panel = document.getElementById('explanationText');
+            let text = '';
+            
+            if (phase === 'first') {
+                text = `<strong>First AP Fired:</strong> The neuron has now entered its refractory period. Notice the shaded regions on the graph - red shows the absolute refractory period (0-1 ms) and orange shows the relative refractory period (1-4 ms). Your second stimulus is set to occur at <strong>${currentDelay.toFixed(1)} ms</strong> after the first AP. Click "Try Second AP" to see if it will fire!`;
+            } else if (phase === 'second') {
+                if (currentDelay < ABSOLUTE_PERIOD) {
+                    text = `<strong>Absolute Refractory Period (${currentDelay.toFixed(1)} ms):</strong> ❌ The second AP <em>failed</em> because Na<sup>+</sup> channels are still INACTIVATED. The inactivation gate physically blocks the pore and won't reopen until the membrane voltage returns to negative values. During this ~1 ms period, no stimulus - no matter how strong - can trigger another AP. This is why you see no second spike on the graph.`;
+                } else if (currentDelay < RELATIVE_PERIOD) {
+                    if (success) {
+                        text = `<strong>Relative Refractory Period (${currentDelay.toFixed(1)} ms):</strong> ✅ The second AP <em>succeeded</em>! At this timing, Na<sup>+</sup> channels are recovering from inactivation and some are available again. However, K<sup>+</sup> channels are still open (causing hyperpolarization to -80 mV), so a STRONGER than normal stimulus was needed to reach threshold. In your neuron, the stimulus was strong enough to overcome this challenge. Notice the second AP (blue) has the same shape as the first - all-or-none law still applies!`;
+                    } else {
+                        text = `<strong>Relative Refractory Period (${currentDelay.toFixed(1)} ms):</strong> ❌ The second AP <em>failed</em>. At this timing, some Na<sup>+</sup> channels are available again, but K<sup>+</sup> channels are still open (hyperpolarization). A much stronger stimulus would be needed to overcome the -80 mV hyperpolarization and reach -55 mV threshold. Your stimulus wasn't strong enough this time.`;
+                    }
+                } else {
+                    text = `<strong>Fully Recovered (${currentDelay.toFixed(1)} ms):</strong> ✅ The second AP fired normally! After ~4 ms, the neuron has fully recovered. Na<sup>+</sup> channels have reset (inactivation gates reopened), K<sup>+</sup> channels have closed, and the membrane is back at -70 mV resting potential. The neuron is ready to fire again with a normal-strength stimulus. Notice both APs (red and blue) are identical in shape and amplitude - demonstrating the all-or-none law.`;
+                }
+            } else {
+                text = `After an action potential fires, the neuron enters a <strong>refractory period</strong> during which it's difficult or impossible to trigger another AP. Set the delay between stimuli, fire the first AP, then try to trigger a second one at your chosen timing. Watch what happens!`;
+            }
+            
+            panel.innerHTML = text;
+        }
+
+        // Initialize
+        updateTimelineMarker();
+        updateExplanation('reset');
+    </script>
+</body>
+</html>

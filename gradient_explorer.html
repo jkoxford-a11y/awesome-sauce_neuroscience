@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrochemical Gradient Explorer | Neuroscience Module</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .learning-objectives {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .learning-objectives h2 {
+            color: #2c5282;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .learning-objectives ul {
+            list-style-position: inside;
+            color: #2d3748;
+            line-height: 1.8;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .ion-section {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 12px;
+            border: 3px solid #e2e8f0;
+        }
+
+        .na-section {
+            border-color: #fc8181;
+        }
+
+        .k-section {
+            border-color: #90cdf4;
+        }
+
+        .ion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #e2e8f0;
+        }
+
+        .na-section .ion-header {
+            border-bottom-color: #fc8181;
+        }
+
+        .k-section .ion-header {
+            border-bottom-color: #90cdf4;
+        }
+
+        .ion-title {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .na-title {
+            color: #e53e3e;
+        }
+
+        .k-title {
+            color: #3182ce;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            display: block;
+            font-size: 1.1em;
+        }
+
+        .slider-container {
+            margin-bottom: 15px;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .slider-label {
+            min-width: 120px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .concentration-slider {
+            flex: 1;
+            height: 10px;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .concentration-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .concentration-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .na-slider {
+            background: linear-gradient(to right, #fff5f5, #fc8181);
+        }
+
+        .k-slider {
+            background: linear-gradient(to right, #ebf8ff, #90cdf4);
+        }
+
+        .value-display {
+            min-width: 80px;
+            text-align: right;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #2d3748;
+        }
+
+        .voltage-control {
+            background: #fffaf0;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #ed8936;
+        }
+
+        .voltage-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2d3748;
+            text-align: center;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .voltage-slider {
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(to right, #9f7aea, #e2e8f0, #f6ad55);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .voltage-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .voltage-slider::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #2d3748;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .quick-presets {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            background: #4299e1;
+        }
+
+        .preset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .visualization-container {
+            margin-top: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .gradient-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .gradient-card {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .gradient-header {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .force-diagram {
+            position: relative;
+            height: 200px;
+            background: #edf2f7;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .membrane-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #2d3748;
+            transform: translateX(-50%);
+        }
+
+        .membrane-label {
+            position: absolute;
+            left: 50%;
+            top: 10px;
+            transform: translateX(-50%);
+            background: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9em;
+            z-index: 10;
+        }
+
+        .force-arrow {
+            position: absolute;
+            top: 50%;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+
+        .arrow-shaft {
+            height: 8px;
+            background: currentColor;
+            transition: width 0.3s;
+        }
+
+        .arrow-head {
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .arrow-left .arrow-head {
+            border-width: 12px 15px 12px 0;
+            border-color: transparent currentColor transparent transparent;
+        }
+
+        .arrow-right .arrow-head {
+            border-width: 12px 0 12px 15px;
+            border-color: transparent transparent transparent currentColor;
+        }
+
+        .electrical-gradient {
+            color: #ed8936;
+        }
+
+        .concentration-gradient {
+            color: #48bb78;
+        }
+
+        .force-label {
+            position: absolute;
+            font-size: 0.85em;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .net-force-summary {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .net-force-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .net-force-direction {
+            font-size: 1.1em;
+            color: #4a5568;
+        }
+
+        .arrow-massive {
+            font-size: 2em;
+        }
+
+        .inward { color: #e53e3e; }
+        .outward { color: #3182ce; }
+        .balanced { color: #48bb78; }
+
+        .explanation-panel {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+
+        .explanation-panel h3 {
+            color: #7c2d12;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .explanation-panel p {
+            color: #2d3748;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .key-insight {
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .key-insight h4 {
+            color: #234e52;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .side-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .gradient-display {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Electrochemical Gradient Explorer</h1>
+        <p class="subtitle">Understanding the Forces on Na<sup>+</sup> and K<sup>+</sup> Ions</p>
+
+        <div class="learning-objectives">
+            <h2>Learning Objectives</h2>
+            <ul>
+                <li>Distinguish between electrical gradients and concentration gradients</li>
+                <li>Explain why Na<sup>+</sup> has TWO forces pushing it into the cell at rest</li>
+                <li>Explain why K<sup>+</sup> has OPPOSING forces (one in, one out)</li>
+                <li>Predict ion movement based on electrochemical gradients</li>
+                <li>Understand how these gradients create the "drawn bow" ready to fire an action potential</li>
+            </ul>
+        </div>
+
+        <div class="main-grid">
+            <!-- Sodium Controls -->
+            <div class="ion-section na-section">
+                <div class="ion-header">
+                    <div class="ion-title na-title">Na<sup>+</sup> Sodium</div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Ion Concentrations (mM)</label>
+                    
+                    <div class="slider-container">
+                        <div class="slider-row">
+                            <span class="slider-label">Outside:</span>
+                            <input type="range" min="50" max="200" value="145" class="concentration-slider na-slider" id="naOutside">
+                            <span class="value-display" id="naOutsideValue">145 mM</span>
+                        </div>
+                        
+                        <div class="slider-row">
+                            <span class="slider-label">Inside:</span>
+                            <input type="range" min="5" max="50" value="12" class="concentration-slider na-slider" id="naInside">
+                            <span class="value-display" id="naInsideValue">12 mM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="voltage-control">
+                    <label class="control-label">Membrane Potential</label>
+                    <div class="voltage-value" id="voltageDisplayNa">-70 mV</div>
+                    <input type="range" min="-90" max="50" value="-70" class="voltage-slider" id="voltageSlider">
+                    <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.9em; color: #718096;">
+                        <span>-90 mV</span>
+                        <span>+50 mV</span>
+                    </div>
+                </div>
+
+                <div class="quick-presets">
+                    <button class="preset-btn" onclick="setPreset('resting')">Resting (-70 mV)</button>
+                    <button class="preset-btn" onclick="setPreset('peak')">Peak (+40 mV)</button>
+                </div>
+            </div>
+
+            <!-- Potassium Controls -->
+            <div class="ion-section k-section">
+                <div class="ion-header">
+                    <div class="ion-title k-title">K<sup>+</sup> Potassium</div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Ion Concentrations (mM)</label>
+                    
+                    <div class="slider-container">
+                        <div class="slider-row">
+                            <span class="slider-label">Outside:</span>
+                            <input type="range" min="1" max="20" value="4" class="concentration-slider k-slider" id="kOutside">
+                            <span class="value-display" id="kOutsideValue">4 mM</span>
+                        </div>
+                        
+                        <div class="slider-row">
+                            <span class="slider-label">Inside:</span>
+                            <input type="range" min="50" max="200" value="140" class="concentration-slider k-slider" id="kInside">
+                            <span class="value-display" id="kInsideValue">140 mM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: #f7fafc; padding: 20px; border-radius: 8px; border: 2px solid #e2e8f0;">
+                    <label class="control-label">Membrane Potential (Shared)</label>
+                    <div class="voltage-value" id="voltageDisplayK">-70 mV</div>
+                    <p style="color: #718096; font-size: 0.9em; margin-top: 10px; text-align: center;">
+                        Both ions experience the same membrane potential
+                    </p>
+                </div>
+
+                <div class="quick-presets">
+                    <button class="preset-btn" onclick="setPreset('hyperpolarized')">Hyperpolarized (-85 mV)</button>
+                    <button class="preset-btn" onclick="setPreset('threshold')">Threshold (-55 mV)</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="visualization-container">
+            <h2 style="text-align: center; color: #2d3748; margin-bottom: 25px;">Force Diagrams</h2>
+            
+            <div class="gradient-display">
+                <!-- Sodium Forces -->
+                <div class="gradient-card">
+                    <div class="gradient-header na-title">Na<sup>+</sup> Forces</div>
+                    
+                    <div class="force-diagram" id="naDiagram">
+                        <div class="membrane-line"></div>
+                        <div class="membrane-label">Membrane</div>
+                        
+                        <!-- Electrical gradient arrow -->
+                        <div class="force-arrow electrical-gradient" id="naElectricalArrow" style="top: 35%; transform: translateY(-50%);">
+                            <div class="arrow-shaft" style="width: 0;"></div>
+                            <div class="arrow-head"></div>
+                        </div>
+                        <div class="force-label electrical-gradient" id="naElectricalLabel" style="top: 35%; left: 50%; transform: translate(-50%, -50%);">
+                            Electrical
+                        </div>
+                        
+                        <!-- Concentration gradient arrow -->
+                        <div class="force-arrow concentration-gradient" id="naConcentrationArrow" style="top: 65%; transform: translateY(-50%);">
+                            <div class="arrow-shaft" style="width: 0;"></div>
+                            <div class="arrow-head"></div>
+                        </div>
+                        <div class="force-label concentration-gradient" id="naConcentrationLabel" style="top: 65%; left: 50%; transform: translate(-50%, -50%);">
+                            Concentration
+                        </div>
+                    </div>
+                    
+                    <div class="side-labels">
+                        <span>Outside (extracellular)</span>
+                        <span>Inside (intracellular)</span>
+                    </div>
+                    
+                    <div class="net-force-summary">
+                        <div class="net-force-value" id="naNetForce">→→</div>
+                        <div class="net-force-direction" id="naNetDirection">Strong Inward Drive</div>
+                    </div>
+                </div>
+
+                <!-- Potassium Forces -->
+                <div class="gradient-card">
+                    <div class="gradient-header k-title">K<sup>+</sup> Forces</div>
+                    
+                    <div class="force-diagram" id="kDiagram">
+                        <div class="membrane-line"></div>
+                        <div class="membrane-label">Membrane</div>
+                        
+                        <!-- Electrical gradient arrow -->
+                        <div class="force-arrow electrical-gradient" id="kElectricalArrow" style="top: 35%; transform: translateY(-50%);">
+                            <div class="arrow-shaft" style="width: 0;"></div>
+                            <div class="arrow-head"></div>
+                        </div>
+                        <div class="force-label electrical-gradient" id="kElectricalLabel" style="top: 35%; left: 50%; transform: translate(-50%, -50%);">
+                            Electrical
+                        </div>
+                        
+                        <!-- Concentration gradient arrow -->
+                        <div class="force-arrow concentration-gradient" id="kConcentrationArrow" style="top: 65%; transform: translateY(-50%);">
+                            <div class="arrow-shaft" style="width: 0;"></div>
+                            <div class="arrow-head"></div>
+                        </div>
+                        <div class="force-label concentration-gradient" id="kConcentrationLabel" style="top: 65%; left: 50%; transform: translate(-50%, -50%);">
+                            Concentration
+                        </div>
+                    </div>
+                    
+                    <div class="side-labels">
+                        <span>Outside (extracellular)</span>
+                        <span>Inside (intracellular)</span>
+                    </div>
+                    
+                    <div class="net-force-summary">
+                        <div class="net-force-value" id="kNetForce">→←</div>
+                        <div class="net-force-direction" id="kNetDirection">Nearly Balanced</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation-panel" id="explanationPanel">
+            <h3>💡 What's Happening?</h3>
+            <p id="explanationText">
+                At resting potential (-70 mV), Na<sup>+</sup> has a strong concentration gradient (145 mM outside vs 12 mM inside) pushing it INTO the cell. The electrical gradient also pulls Na<sup>+</sup> inward because the inside is negative and Na<sup>+</sup> is positive. These two forces work together, creating a massive driving force ready to rush Na<sup>+</sup> into the cell when channels open!
+            </p>
+        </div>
+
+        <div class="key-insight">
+            <h4>🎯 The "Drawn Bow" Concept</h4>
+            <p>
+                The resting potential sets up opposing conditions for Na<sup>+</sup> and K<sup>+</sup>. Na<sup>+</sup> has TWO forces pushing it inward (like a drawn bow under tension), while K<sup>+</sup> forces are nearly balanced. This is why when voltage-gated Na<sup>+</sup> channels open, there's an explosive influx of Na<sup>+</sup> that creates the rising phase of the action potential. The neuron has stored potential energy in these gradients!
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Get all control elements
+        const naOutside = document.getElementById('naOutside');
+        const naInside = document.getElementById('naInside');
+        const kOutside = document.getElementById('kOutside');
+        const kInside = document.getElementById('kInside');
+        const voltageSlider = document.getElementById('voltageSlider');
+
+        // Add event listeners
+        naOutside.addEventListener('input', updateDisplay);
+        naInside.addEventListener('input', updateDisplay);
+        kOutside.addEventListener('input', updateDisplay);
+        kInside.addEventListener('input', updateDisplay);
+        voltageSlider.addEventListener('input', updateDisplay);
+
+        function updateDisplay() {
+            // Update value displays
+            document.getElementById('naOutsideValue').textContent = naOutside.value + ' mM';
+            document.getElementById('naInsideValue').textContent = naInside.value + ' mM';
+            document.getElementById('kOutsideValue').textContent = kOutside.value + ' mM';
+            document.getElementById('kInsideValue').textContent = kInside.value + ' mM';
+            
+            const voltage = parseInt(voltageSlider.value);
+            document.getElementById('voltageDisplayNa').textContent = voltage + ' mV';
+            document.getElementById('voltageDisplayK').textContent = voltage + ' mV';
+
+            // Calculate and display forces
+            updateForces();
+            updateExplanation();
+        }
+
+        function updateForces() {
+            const voltage = parseInt(voltageSlider.value);
+            const naOut = parseInt(naOutside.value);
+            const naIn = parseInt(naInside.value);
+            const kOut = parseInt(kOutside.value);
+            const kIn = parseInt(kInside.value);
+
+            // Sodium forces
+            const naConcentrationRatio = naOut / naIn;
+            const naElectricalForce = voltage < 0 ? Math.abs(voltage) : -voltage; // Negative voltage pulls positive ions in
+            
+            // Concentration gradient: high outside means inward force
+            const naConcentrationStrength = Math.min(naConcentrationRatio * 20, 150);
+            
+            // Electrical gradient: negative inside pulls positive ions in
+            const naElectricalStrength = voltage < 0 ? Math.abs(voltage) * 1.5 : 0;
+
+            updateArrow('na', 'Electrical', naElectricalStrength, voltage < 0 ? 'right' : 'left');
+            updateArrow('na', 'Concentration', naConcentrationStrength, 'right');
+
+            // Calculate net force for Na+
+            const naNetStrength = naElectricalStrength + naConcentrationStrength;
+            updateNetForce('na', naNetStrength, 'inward');
+
+            // Potassium forces
+            const kConcentrationRatio = kIn / kOut;
+            
+            // Concentration gradient: high inside means outward force
+            const kConcentrationStrength = Math.min(kConcentrationRatio * 20, 150);
+            
+            // Electrical gradient: negative inside pulls positive ions in
+            const kElectricalStrength = voltage < 0 ? Math.abs(voltage) * 1.5 : 0;
+
+            updateArrow('k', 'Electrical', kElectricalStrength, voltage < 0 ? 'right' : 'left');
+            updateArrow('k', 'Concentration', kConcentrationStrength, 'left');
+
+            // Calculate net force for K+
+            const kNetStrength = kConcentrationStrength - kElectricalStrength;
+            const kDirection = kNetStrength > 0 ? 'outward' : kNetStrength < 0 ? 'inward' : 'balanced';
+            updateNetForce('k', Math.abs(kNetStrength), kDirection);
+        }
+
+        function updateArrow(ion, type, strength, direction) {
+            const arrowId = ion + type + 'Arrow';
+            const arrow = document.getElementById(arrowId);
+            const shaft = arrow.querySelector('.arrow-shaft');
+            
+            // Remove existing direction classes
+            arrow.classList.remove('arrow-left', 'arrow-right');
+            arrow.classList.add('arrow-' + direction);
+            
+            // Position and size arrow
+            const maxWidth = 140;
+            const width = Math.min(strength, maxWidth);
+            shaft.style.width = width + 'px';
+            
+            if (direction === 'right') {
+                // Pointing inward (to the right)
+                arrow.style.left = '10%';
+                arrow.style.right = 'auto';
+                arrow.innerHTML = `
+                    <div class="arrow-shaft" style="width: ${width}px;"></div>
+                    <div class="arrow-head"></div>
+                `;
+            } else {
+                // Pointing outward (to the left)
+                arrow.style.right = '10%';
+                arrow.style.left = 'auto';
+                arrow.innerHTML = `
+                    <div class="arrow-head"></div>
+                    <div class="arrow-shaft" style="width: ${width}px;"></div>
+                `;
+            }
+        }
+
+        function updateNetForce(ion, strength, direction) {
+            const netForceEl = document.getElementById(ion + 'NetForce');
+            const netDirectionEl = document.getElementById(ion + 'NetDirection');
+            
+            netForceEl.className = 'net-force-value';
+            
+            if (direction === 'inward') {
+                if (strength > 100) {
+                    netForceEl.textContent = '→→→';
+                    netForceEl.classList.add('inward');
+                    netDirectionEl.textContent = 'STRONG Inward Drive';
+                } else if (strength > 50) {
+                    netForceEl.textContent = '→→';
+                    netForceEl.classList.add('inward');
+                    netDirectionEl.textContent = 'Moderate Inward Drive';
+                } else {
+                    netForceEl.textContent = '→';
+                    netForceEl.classList.add('inward');
+                    netDirectionEl.textContent = 'Weak Inward Drive';
+                }
+            } else if (direction === 'outward') {
+                if (strength > 100) {
+                    netForceEl.textContent = '←←←';
+                    netForceEl.classList.add('outward');
+                    netDirectionEl.textContent = 'STRONG Outward Drive';
+                } else if (strength > 50) {
+                    netForceEl.textContent = '←←';
+                    netForceEl.classList.add('outward');
+                    netDirectionEl.textContent = 'Moderate Outward Drive';
+                } else {
+                    netForceEl.textContent = '←';
+                    netForceEl.classList.add('outward');
+                    netDirectionEl.textContent = 'Weak Outward Drive';
+                }
+            } else {
+                netForceEl.textContent = '←→';
+                netForceEl.classList.add('balanced');
+                netDirectionEl.textContent = 'Forces Nearly Balanced';
+            }
+        }
+
+        function updateExplanation() {
+            const voltage = parseInt(voltageSlider.value);
+            const naOut = parseInt(naOutside.value);
+            const naIn = parseInt(naInside.value);
+            const kOut = parseInt(kOutside.value);
+            const kIn = parseInt(kInside.value);
+            
+            const panel = document.getElementById('explanationText');
+            
+            let text = '';
+            
+            if (voltage < -60) {
+                text = `At ${voltage} mV (resting/hyperpolarized), the inside is negative. `;
+                text += `Na<sup>+</sup> (${naOut} mM outside vs ${naIn} mM inside) has BOTH concentration gradient (high → low) and electrical gradient (negative inside attracts positive ions) pushing it INWARD. `;
+                text += `K<sup>+</sup> (${kIn} mM inside vs ${kOut} mM outside) has concentration pushing it OUTWARD, but electrical pulling it INWARD - these forces nearly balance, so K<sup>+</sup> slowly leaks out.`;
+            } else if (voltage < -40) {
+                text = `At ${voltage} mV (threshold region), the inside is becoming less negative. `;
+                text += `Na<sup>+</sup> still has strong inward drive from both gradients. `;
+                text += `K<sup>+</sup> forces are still nearly balanced but the electrical pull inward is weakening as voltage rises.`;
+            } else if (voltage < 20) {
+                text = `At ${voltage} mV (rising phase), the inside is approaching zero or positive. `;
+                text += `Na<sup>+</sup> concentration gradient still pushes inward, but electrical gradient is weakening or reversing. `;
+                text += `K<sup>+</sup> now has BOTH forces pushing outward - concentration gradient AND electrical (positive inside repels positive ions).`;
+            } else {
+                text = `At ${voltage} mV (peak), the inside is POSITIVE! `;
+                text += `Na<sup>+</sup> electrical gradient now OPPOSES entry (positive repels positive), though concentration still favors inward. `;
+                text += `K<sup>+</sup> has STRONG outward drive - both concentration AND electrical gradients push it out, causing rapid repolarization.`;
+            }
+            
+            panel.innerHTML = text;
+        }
+
+        function setPreset(preset) {
+            switch(preset) {
+                case 'resting':
+                    voltageSlider.value = -70;
+                    break;
+                case 'threshold':
+                    voltageSlider.value = -55;
+                    break;
+                case 'peak':
+                    voltageSlider.value = 40;
+                    break;
+                case 'hyperpolarized':
+                    voltageSlider.value = -85;
+                    break;
+            }
+            updateDisplay();
+        }
+
+        // Initialize
+        updateDisplay();
+    </script>
+</body>
+</html>
